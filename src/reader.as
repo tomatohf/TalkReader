@@ -1,4 +1,5 @@
 import flash.display.StageScaleMode;
+import flash.events.FullScreenEvent;
 import flash.net.navigateToURL;
 import flash.utils.setTimeout;
 
@@ -14,9 +15,30 @@ private var border_color:int = 808080;
 private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
+	observe_event();
+	
 	content.width = Application.application.stage.width - 50;
 	
 	load_content();
+}
+
+private function observe_event():void {
+	Application.application.stage.addEventListener(
+		FullScreenEvent.FULL_SCREEN,
+		function(event:FullScreenEvent):void {
+			toggle_fullscreen_btn(event.fullScreen);
+		}
+	);
+	
+	// 注册和监听双击全屏
+	/*
+	Application.application.stage.addEventListener(
+		FullScreenEvent.FULL_SCREEN,
+		function(event:FullScreenEvent):void {
+			toggle_fullscreen_btn(event.fullScreen);
+		}
+	);
+	*/
 }
 
 private function load_content():void {
@@ -38,20 +60,19 @@ private function toggle_fullscreen():void {
 	switch(Application.application.stage.displayState) {
 		case StageDisplayState.FULL_SCREEN:
 			Application.application.stage.displayState = StageDisplayState.NORMAL;
-			fullscreen_btn.visible = true;
-			fullscreen_btn.includeInLayout = true;
-			normal_btn.visible = false;
-			normal_btn.includeInLayout = false;
 			break;
 			
 		default:
 			Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
-			fullscreen_btn.visible = false;
-			fullscreen_btn.includeInLayout = false;
-			normal_btn.visible = true;
-			normal_btn.includeInLayout = true;
 			break;
 	}
+}
+
+private function toggle_fullscreen_btn(is_full:Boolean):void {
+	fullscreen_btn.visible = !is_full;
+	fullscreen_btn.includeInLayout = !is_full;
+	normal_btn.visible = is_full;
+	normal_btn.includeInLayout = is_full;
 }
 
 private function get_content_height():int {
