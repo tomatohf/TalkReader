@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:reader="com.qiaobutang.talk.reader.*"
+	layout="vertical"
+	applicationComplete="init();"
+	paddingTop="0"
+	paddingLeft="0"
+	paddingRight="0"
+	paddingBottom="0"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.messaging.AbstractConsumer;
+			import mx.effects.AnimateProperty;
+			import mx.effects.Move;
+			import mx.effects.Effect;
+			import flash.display.Stage;
+			import flash.display.StageScaleMode;
+			import flash.display.StageDisplayState;
+		
+			private function init():void {
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+				
+				text_area.width = stage.width;
+				
+				update_text_area_height();
+			}
+			
+			private function get_text_area_content_height():uint {
+				text_area.validateNow();
+				
+				var ta_height:uint = 0;
+				
+				for(var i:int = 0; i < text_area.mx_internal::getTextField().numLines; i++) {
+					var metrics:TextLineMetrics = text_area.mx_internal::getTextField().getLineMetrics(i);
+					ta_height += metrics.height + metrics.leading + 2;
+				}
+				
+				return ta_height;
+			}
+			
+			private function update_text_area_height():void {
+				//text_area.height = Math.max(text_area_container.height, get_text_area_content_height());
+				text_area.height = get_text_area_content_height();
+			}
+			
+			private function full_screen():void {
+				stage.displayState = StageDisplayState.FULL_SCREEN;
+			}
+			
+			private function make_center():void {
+				var container_w:int = text_area_container.width;
+				var text_area_w:int = text_area.width;
+				
+				if(container_w >= text_area_w) {
+					text_area.x = (container_w - text_area_w) / 2;
+				}
+				else {
+					text_area.horizontalScrollPosition = (text_area_w - container_w) / 2;
+				}
+			}
+			
+			private function increase_font_size():void {
+				var font_size:int = text_area.getStyle("fontSize");
+				
+				font_size += 2;
+				update_font_size(font_size);
+			}
+			
+			private function decrease_font_size():void {
+				var font_size:int = text_area.getStyle("fontSize");
+				
+				font_size -= 2;
+				update_font_size(font_size);
+			}
+			
+			private function update_font_size(font_size:int):void {
+				text_area.setStyle("fontSize", font_size);
+				
+				update_text_area_height();
+			}
+			
+			private function increase_size():void {
+				text_area.scaleX += 0.1;
+				text_area.scaleY += 0.1;
+				
+				//make_center();
+			}
+			
+			private function decrease_size():void {
+				text_area.scaleX -= 0.1;
+				text_area.scaleY -= 0.1;
+				
+				//make_center();
+			}
+			
+			private function onloaded():void {
+				var scroll:AnimateProperty = new AnimateProperty(text_area_container);
+				scroll.property = "verticalScrollPosition";
+				scroll.duration = 500;
+				scroll.toValue = 0;
+				scroll.play();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:ApplicationControlBar width="100%" id="top_bar" dock="false">
+		<mx:Image source="@Embed(source='resources/logo.png')"/>
+		<mx:Button id="full_screen_btn" label="全屏" click="full_screen();"/>
+		<mx:Button label="字体+" click="increase_font_size();"/>
+		<mx:Button label="字体-" click="decrease_font_size();"/>
+		<mx:Button label="放大" click="increase_size();"/>
+		<mx:Button label="缩小" click="decrease_size();"/>
+		<mx:Button label="loaded" click="onloaded();"/>
+		
+	</mx:ApplicationControlBar>
+	
+	<reader:ReaderContentCanvas width="100%" height="100%" id="text_area_container" borderColor="#808080" borderStyle="inset" useHandCursor="true" buttonMode="true">
+		<mx:TextArea id="text_area" horizontalCenter="0" paddingLeft="20" paddingRight="20" verticalScrollPolicy="off" horizontalScrollPolicy="off" editable="false" wordWrap="true" enabled="true" borderThickness="0" displayAsPassword="false" selectable="false">
+			<mx:htmlText><![CDATA[ 				<p>You can include an image in your HTML text width the &lt;img&gt;tag.</p> 				<p> 					<img src='http://qiaobutang.com/images/index/qiaobuquan_logo.png' /> 					Here is text that follows the image.I'am extending the text by lengthening this sentence until it's long enough to show warpping around the bottom of the image. 				</p>
+						<p>
+							如图，有多少人能看得懂啊？高等数学......
+	这款给数学狂人的钟在Etsy上开售喽，要价20美元，20美元买一个创意吧。下面为了普及数学知识，我来一一介绍上面每一个数字的含义：
+	
+	   <font color="#FF00FF" size="20">1. 勒让德常数</font>
+	   2. 1/2^0+1/2^1+1/2^2+...+...趋近于2
+	   3. 3在HTML语言里的Unicode代码
+	   4. mod=同余
+	   5. 黄金分割
+	   6. 3的阶乘
+	   7. 6.999999999999999999999999->也该往7靠一点了吧
+	   8. 8的二进制图像
+	   9. 9的四进制表示
+	  10. 贾宪三角形，杨辉三角形（二项式系数）
+	  11. 16进制编码
+	  12. 1728的立方根=12
+	
+	看引用源有更多资料与讨论，看来我数学还欠点，谁能解释一下4啊？(感谢LittleNew、Shawphy对7的补正，感谢HalfAMonk对4的解释--2009年2月2日20:36:36更新)
+						</p>
+						
+					<p>
+						第二个例子，有DragProxy指定DragImage的，现在用mx:Application拖拽时是可以出现图像，但是改成Air的为什么就不行了？
+						即把mx:Application改成mx:WindowedApplication后，拖拽时dragImage就不会显示出来了。
+						
+						如果可以发个mail，不胜感激。
+						
+						devguide_flex3.pdf-- 763page
+						AIR:The operating system controls the drag proxy, but you can
+						still specify a drag image.
+					</p>
+					
+					<p>
+						 中国总理温家宝2月1日在伦敦接受英国金融时报独家专访，就国际金融危机、中国如何应对经济衰退以及维持经济增长与社会稳定回答提问。他说：“你可以随便问。我给你讲的一定是真话。” 参与此次采访的有：FT总编辑里昂内尔•巴伯（Lionel Barber）、 FT 北京分社社长杰夫•代尔 （Geoff Dyer）、FT 中国投资参考总编辑金奇（James Kynge），FT 中文网总编辑张力奋。以下是专访的全文记录。
+
+巴伯：温总理，非常高兴能够采访您。本周你也访问了达沃斯。在达沃斯，人人都在谈论如何重树信心的问题。有人也谈到要恢复信心，需要解决银行业的问题。中国面对目前的金融危机可以采取哪些措施以恢复信心？
+
+温家宝：我这次出席达沃斯论坛和访问欧洲，可以说一次信心之旅。我带来了中国应对金融危机的信心，也带来了同欧洲加强合作，推进战略伙伴关系的信心。带来了世界携手共进，共渡时艰的信心。我对中国经济应对危机的信心是建立在科学态度和求实精神之上的。主要表现是，信心的来源在于我们对形势的正确判断。来源于改革开放30年，形成的强有力的物质基础和良好的体制。来源于中国有一个稳健的金融市场体系，来源于中国有广阔的市场潜力和回旋余地，最重要的是来源于政府坚决果断的决策，决策的力度和决策的速度。
+					</p>
+			 			]]></mx:htmlText>
+		</mx:TextArea>
+	</reader:ReaderContentCanvas>
+	
+</mx:Application>
