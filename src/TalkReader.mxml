@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:reader="com.qiaobutang.talk.reader.*"
+	xmlns:flexlib="http://code.google.com/p/flexlib/"
 	layout="vertical"
 	paddingTop="0"
 	paddingLeft="0"
@@ -12,7 +13,7 @@
 	<mx:Script source="reader.as"></mx:Script>
 	
 	
-	<mx:ApplicationControlBar width="100%" id="app_bar">
+	<mx:ApplicationControlBar width="100%" id="app_bar" doubleClickEnabled="true">
 		<mx:Image source="@Embed(source='resources/logo.png')"
 			id="logo_img"
 			click="logo_img_click()"
@@ -51,7 +52,31 @@
 			
 		<mx:VRule
 			height="16"
-			strokeColor="{border_color}"
+			strokeColor="#808080"
+			/>
+			
+		<flexlib:PromptingTextInput
+			id="search_box"
+			width="50"
+			prompt="搜索..."
+			enter="search()"
+			/>
+		<mx:Button
+			id="search_btn"
+			label=""
+			icon="@Embed(source='resources/search_icon.gif')"
+			paddingLeft="0"
+			paddingRight="0"
+			toolTip="搜索"
+			width="24"
+			height="24"
+			click="search()"
+			buttonMode="true"
+			/>
+			
+		<mx:VRule
+			height="16"
+			strokeColor="#808080"
 			/>
 		
 		<mx:Button
@@ -68,8 +93,6 @@
 			/>
 		<mx:Button
 			id="normal_btn"
-			visible="false"
-			includeInLayout="false"
 			label=""
 			icon="@Embed(source='resources/normal_icon.gif')"
 			paddingLeft="0"
@@ -87,9 +110,11 @@
 	<reader:ReaderContentCanvas
 		width="100%"
 		height="100%"
+		verticalScrollPolicy="on"
 		id="content_container"
-		borderColor="{border_color}"
+		borderColor="#888888"
 		borderStyle="outset"
+		doubleClickEnabled="true"
 		>
 		
 		<mx:TextArea

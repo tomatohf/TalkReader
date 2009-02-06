@@ -1,23 +1,29 @@
 import flash.display.StageScaleMode;
 import flash.events.FullScreenEvent;
+import flash.events.MouseEvent;
 import flash.net.navigateToURL;
 import flash.utils.setTimeout;
+
+import flexlib.controls.Highlighter;
 
 import mx.core.Application;
 import mx.effects.AnimateProperty;
 
 // configuratioin values
 private var website:String = "http://qiaobutang.com";
-[Bindable]
-private var border_color:int = 808080;
+
+
+public var highlighter:Highlighter;
 
 
 private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
+	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 50, 20);
+	
 	observe_event();
 	
-	content.width = Application.application.stage.width - 50;
+	toggle_fullscreen_btn(false);
 	
 	load_content();
 }
@@ -30,15 +36,13 @@ private function observe_event():void {
 		}
 	);
 	
-	// 注册和监听双击全屏
-	/*
-	Application.application.stage.addEventListener(
-		FullScreenEvent.FULL_SCREEN,
-		function(event:FullScreenEvent):void {
-			toggle_fullscreen_btn(event.fullScreen);
-		}
+	var double_handler:Function = function():void {
+		toggle_fullscreen();
+	}
+	content_container.addEventListener(
+		MouseEvent.DOUBLE_CLICK,
+		double_handler
 	);
-	*/
 }
 
 private function load_content():void {
@@ -73,6 +77,8 @@ private function toggle_fullscreen_btn(is_full:Boolean):void {
 	fullscreen_btn.includeInLayout = !is_full;
 	normal_btn.visible = is_full;
 	normal_btn.includeInLayout = is_full;
+	
+	content.width = (Application.application.stage.stageWidth - content_container.verticalScrollBar.width) / 1.1;
 }
 
 private function get_content_height():int {
@@ -98,4 +104,10 @@ private function scroll_to_top():void {
 private function scale_content(step:int):void {
 	content.scaleX += step / 100;
 	content.scaleY += step / 100;
+}
+
+private function search():void {
+	var text:String = search_box.text;
+	
+	highlighter.highlightNext(text, false);
 }
