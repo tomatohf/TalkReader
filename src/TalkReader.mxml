@@ -7,13 +7,14 @@
 	paddingLeft="0"
 	paddingRight="0"
 	paddingBottom="0"
+	backgroundColor="#B2B2B2"
 	applicationComplete="init_app()"
 	>
 	
 	<mx:Script source="reader.as"></mx:Script>
 	
 	
-	<mx:ApplicationControlBar width="100%" id="app_bar" doubleClickEnabled="true">
+	<mx:ApplicationControlBar width="100%" id="app_bar" horizontalGap="{app_bar_gap}">
 		<mx:Image source="@Embed(source='resources/logo.png')"
 			id="logo_img"
 			click="logo_img_click()"
