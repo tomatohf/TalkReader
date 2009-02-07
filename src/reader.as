@@ -18,13 +18,15 @@ private var app_bar_gap:int = 1;
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
 
+public var all_highlighter:Highlighter;
 public var highlighter:Highlighter;
 
 
 private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
-	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 50, 20);
+	all_highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 10, 10);
+	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFF00FF00, 10, 10);
 	
 	observe_event();
 	
@@ -115,8 +117,8 @@ private function toggle_fullscreen_btn(is_full:Boolean):void {
 	
 	content.width = (Application.application.stage.stageWidth - content_container.verticalScrollBar.width) / 1.1;
 	
-	search_box.width = is_full ? 200 : 50;
 	app_bar_gap = is_full ? 10 : 1;
+	search_box.width = is_full ? 300 : 75;
 }
 
 private function get_content_height():int {
@@ -141,14 +143,47 @@ private function scroll_to(dest:int):void {
 
 private function scale_content(step:int):void {
 	content.scaleX += step / 100;
-	content.scaleY += step / 100;
+	content.scaleY = content.scaleX;
+	
+	big_btn.enabled = content.scaleX < 5;
+	small_btn.enabled = content.scaleX > 0.2;
 	
 	highlighter.reset();
 }
 
-private function search():void {
+private function toggle_search_panel():void {
+	if(search_panel.visible) {
+		search_panel.visible = false;
+		search_panel.includeInLayout = false;
+	}
+	else {
+		search_panel.visible = true;
+		search_panel.includeInLayout = true;
+	}
+}
+
+private function search_next():void {
 	var text:String = search_box.text;
 	text = StringUtil.trim(text);
 	
 	highlighter.highlightNext(text, false);
+}
+
+private function search_pre():void {
+	var text:String = search_box.text;
+	text = StringUtil.trim(text);
+	
+	highlighter.highlightPrevious(text, false);
+}
+
+private function toggle_highlight_all():void {
+	if(toggle_highlight_all_btn.selected){
+		var text:String = search_box.text;
+		text = StringUtil.trim(text);
+	
+		all_highlighter.highlightWordInstances(text, false);
+	}
+	else {
+		all_highlighter.reset();
+	}
 }

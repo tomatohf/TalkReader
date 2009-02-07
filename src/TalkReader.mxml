@@ -56,14 +56,7 @@
 			strokeColor="#808080"
 			/>
 			
-		<flexlib:PromptingTextInput
-			id="search_box"
-			width="50"
-			prompt="搜索..."
-			enter="search()"
-			/>
 		<mx:Button
-			id="search_btn"
 			label=""
 			icon="@Embed(source='resources/search_icon.gif')"
 			paddingLeft="0"
@@ -71,7 +64,7 @@
 			toolTip="搜索"
 			width="24"
 			height="24"
-			click="search()"
+			click="toggle_search_panel()"
 			buttonMode="true"
 			/>
 			
@@ -121,9 +114,9 @@
 		<mx:TextArea
 			id="content"
 			horizontalCenter="0"
-			paddingTop="20"
-			paddingLeft="50"
-			paddingRight="50"
+			paddingTop="10"
+			paddingLeft="10"
+			paddingRight="10"
 			verticalScrollPolicy="off"
 			horizontalScrollPolicy="off"
 			editable="false"
@@ -137,5 +130,75 @@
 		</mx:TextArea>
 		
 	</reader:ReaderContentCanvas>
+	
+	
+	<mx:ControlBar
+		id="search_panel"
+		includeInLayout="false"
+		visible="false"
+		width="100%"
+		horizontalGap="1"
+		paddingTop="0"
+		paddingBottom="4"
+		>
+		
+		<mx:Image source="@Embed(source='resources/close_icon.gif')"
+			click="toggle_search_panel()"
+			toolTip="关闭"
+			useHandCursor="true"
+			buttonMode="true"
+			/>
+			
+		<mx:Spacer width="5"></mx:Spacer>
+		
+		<mx:Label text="搜索:" fontSize="12" paddingTop="1" />
+			
+		<flexlib:PromptingTextInput
+			id="search_box"
+			width="75"
+			prompt="要搜索的内容"
+			enter="search_next()"
+			/>
+			
+		<mx:Spacer width="3"></mx:Spacer>
+		
+		<mx:Button
+			label="下一个"
+			toolTip="搜索下一个"
+			click="search_next()"
+			paddingLeft="0"
+			paddingRight="0"
+			buttonMode="true"
+			/>
+		<mx:Button
+			label="上一个"
+			toolTip="搜索上一个"
+			click="search_pre()"
+			paddingLeft="0"
+			paddingRight="0"
+			buttonMode="true"
+			/>
+			
+		<mx:Spacer width="3"></mx:Spacer>
+		
+		<mx:VRule
+			height="16"
+			strokeColor="#808080"
+			/>
+		
+		<mx:Spacer width="3"></mx:Spacer>
+		
+		<mx:Button
+			toggle="true"
+			id="toggle_highlight_all_btn"
+			label="高亮全部"
+			toolTip="高亮全部搜索到的结果"
+			click="toggle_highlight_all()"
+			paddingLeft="5"
+			paddingRight="5"
+			buttonMode="true"
+			/>
+		
+	</mx:ControlBar>
 	
 </mx:Application>
