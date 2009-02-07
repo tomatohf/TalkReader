@@ -6,8 +6,10 @@ import flash.utils.setTimeout;
 
 import flexlib.controls.Highlighter;
 
+import mx.controls.Menu;
 import mx.core.Application;
 import mx.effects.AnimateProperty;
+import mx.events.MenuEvent;
 import mx.managers.CursorManager;
 import mx.utils.StringUtil;
 
@@ -15,24 +17,51 @@ import mx.utils.StringUtil;
 private var website:String = "http://qiaobutang.com";
 [Bindable]
 private var app_bar_gap:int = 1;
+
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
+[Embed(source="resources/more_icon.gif")]public var more_icon:Class;
+[Embed(source="resources/share_icon.gif")]public var share_icon:Class;
+[Embed(source="resources/embed_icon.gif")]public var embed_icon:Class;
+[Embed(source="resources/help_icon.gif")]public var help_icon:Class;
+[Embed(source="resources/about_icon.png")]public var about_icon:Class;
 
-public var all_highlighter:Highlighter;
-public var highlighter:Highlighter;
+
+private var all_highlighter:Highlighter;
+private var highlighter:Highlighter;
+
+private var info_menu:Menu;
 
 
 private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
-	all_highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 10, 10);
-	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFF00FF00, 10, 10);
+	init_highlighter();
+	init_menu();
 	
 	observe_event();
 	
 	toggle_fullscreen_btn(false);
 	
 	load_content();
+}
+
+private function init_highlighter():void {
+	all_highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 10, 10);
+	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFF00FF00, 10, 10);
+}
+
+private function init_menu():void {
+	info_menu = Menu.createMenu(null, info_menu_provider, false);
+	
+	info_menu.labelField = "@label";
+	info_menu.iconField = "@icon";
+	info_menu.variableRowHeight = true;
+	
+	info_menu.setStyle("fontSize", 12);
+	info_menu.setStyle("backgroundColor", "#DDDDDD");
+	info_menu.setStyle("openDuration", 150);
+	info_menu.setStyle("themeColor", "black");
 }
 
 private function observe_event():void {
@@ -79,6 +108,13 @@ private function observe_event():void {
 			CursorManager.removeAllCursors();
 		}
 	);
+	
+	info_menu.addEventListener(
+		MenuEvent.ITEM_CLICK,
+		function(event:MenuEvent):void {
+			handle_info_menu_item(event.index);
+		}
+	)
 }
 
 private function load_content():void {
@@ -186,4 +222,51 @@ private function toggle_highlight_all():void {
 	else {
 		all_highlighter.reset();
 	}
+}
+
+private function show_info_menu():void {
+	info_menu.show(info_menu_btn.x - 30, info_menu_btn.y + info_menu_btn.height + 5);
+}
+
+private function handle_info_menu_item(item_index:int):void {
+	switch(item_index) {
+		case 0:
+			handle_more();
+			break;
+		case 2:
+			handle_share();
+			break;
+		case 3:
+			handle_embed();
+			break;
+		case 5:
+			handle_help();
+			break;
+		case 6:
+			handle_about();
+			break;
+		default:
+			// do nothing ...
+			break;
+	}
+}
+
+private function handle_more():void {
+	content.text += "more is clicked ... ";
+}
+
+private function handle_share():void {
+	content.text += "share is clicked ... ";
+}
+
+private function handle_embed():void {
+	content.text += "embed is clicked ... ";
+}
+
+private function handle_help():void {
+	content.text += "help is clicked ... ";
+}
+
+private function handle_about():void {
+	content.text += "about is clicked ... ";
 }

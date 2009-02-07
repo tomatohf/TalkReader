@@ -13,6 +13,22 @@
 	
 	<mx:Script source="reader.as"></mx:Script>
 	
+	<mx:XML id="info_menu_provider">
+		<root>
+			<item label="查看更多" icon="more_icon" />
+			
+			<item type="separator" />
+			
+			<item label="分享给朋友" icon="share_icon" />
+			<item label="获取嵌入代码" icon="embed_icon" />
+			
+			<item type="separator" />
+			
+			<item label="帮助" icon="help_icon" />
+			<item label="关于" icon="about_icon" />
+		</root>
+	</mx:XML>
+	
 	
 	<mx:ApplicationControlBar width="100%" id="app_bar" horizontalGap="{app_bar_gap}">
 		<mx:Image source="@Embed(source='resources/logo.png')"
@@ -26,6 +42,29 @@
 		<mx:Spacer width="100%"></mx:Spacer>
 		
 		
+		<mx:Button
+			id="info_menu_btn"
+			label=""
+			icon="@Embed(source='resources/dropdown_menu_icon.gif')"
+			paddingLeft="0"
+			paddingRight="0"
+			toolTip="更多菜单"
+			width="24"
+			height="24"
+			click="show_info_menu()"
+			mouseOver="show_info_menu()"
+			buttonMode="true"
+			/>
+			
+		<mx:Spacer width="3"></mx:Spacer>
+		
+		<mx:VRule
+			height="16"
+			strokeColor="#808080"
+			/>
+			
+		<mx:Spacer width="3"></mx:Spacer>
+			
 		<mx:Button
 			id="big_btn"
 			label=""
