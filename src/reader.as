@@ -8,12 +8,14 @@ import flexlib.controls.Highlighter;
 
 import mx.core.Application;
 import mx.effects.AnimateProperty;
+import mx.managers.CursorManager;
 import mx.utils.StringUtil;
 
 // configuratioin values
 private var website:String = "http://qiaobutang.com";
 [Bindable]
 private var app_bar_gap:int = 1;
+[Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
 
 public var highlighter:Highlighter;
@@ -39,12 +41,41 @@ private function observe_event():void {
 		}
 	);
 	
+	var mouse_wheel_handler:Function = function(event:MouseEvent):void {
+		content_container.verticalScrollPosition -= event.delta * 10;
+	}
+	Application.application.stage.addEventListener(
+		MouseEvent.MOUSE_WHEEL,
+		mouse_wheel_handler
+	);
+	content_container.addEventListener(
+		MouseEvent.MOUSE_WHEEL,
+		mouse_wheel_handler
+	);
+	content.addEventListener(
+		MouseEvent.MOUSE_WHEEL,
+		mouse_wheel_handler
+	);
+	
 	var double_handler:Function = function():void {
 		toggle_fullscreen();
 	}
 	content_container.addEventListener(
 		MouseEvent.DOUBLE_CLICK,
 		double_handler
+	);
+	
+	content_container.addEventListener(
+		MouseEvent.MOUSE_DOWN,
+		function():void {
+			CursorManager.setCursor(moving_hand_cursor, 2, -8, -8);
+		}
+	);
+	content_container.addEventListener(
+		MouseEvent.MOUSE_UP,
+		function():void {
+			CursorManager.removeAllCursors();
+		}
 	);
 }
 
