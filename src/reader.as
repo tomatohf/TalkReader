@@ -1,16 +1,24 @@
 import flash.display.StageScaleMode;
+import flash.events.ContextMenuEvent;
 import flash.events.FullScreenEvent;
+import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.net.navigateToURL;
+import flash.ui.ContextMenu;
+import flash.ui.ContextMenuItem;
 import flash.utils.setTimeout;
 
 import flexlib.controls.Highlighter;
 
+import mx.containers.TitleWindow;
+import mx.controls.Label;
 import mx.controls.Menu;
 import mx.core.Application;
 import mx.effects.AnimateProperty;
+import mx.events.CloseEvent;
 import mx.events.MenuEvent;
 import mx.managers.CursorManager;
+import mx.managers.PopUpManager;
 import mx.utils.StringUtil;
 
 // configuratioin values
@@ -32,12 +40,23 @@ private var highlighter:Highlighter;
 
 private var info_menu:Menu;
 
+private var zoom_in_item:ContextMenuItem;
+private var zoom_out_item:ContextMenuItem;
+private var search_item:ContextMenuItem;
+private var help_item:ContextMenuItem;
+
+private var help_window:TitleWindow;
+
 
 private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
 	init_highlighter();
 	init_menu();
+	
+	init_help_window();
+	
+	adjust_context_menu();
 	
 	observe_event();
 	
@@ -62,6 +81,101 @@ private function init_menu():void {
 	info_menu.setStyle("backgroundColor", "#DDDDDD");
 	info_menu.setStyle("openDuration", 150);
 	info_menu.setStyle("themeColor", "black");
+}
+
+private function init_help_window():void {
+	help_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, false));
+	
+	help_window.title = "帮助信息";
+	help_window.titleIcon = help_icon;
+	
+	help_window.showCloseButton = true;
+	help_window.addEventListener(
+		CloseEvent.CLOSE,
+		function():void {
+			handle_help();
+		}
+	);
+	
+	help_window.width = 200;
+	help_window.height = 220;
+	
+	help_window.visible = false;
+	help_window.includeInLayout = false;
+	
+	
+	help_window.layout = "vertical";
+	
+	var keys_label:Label = new Label();
+	keys_label.text = "快捷键操作:";
+	keys_label.setStyle("fontSize", 12);
+	help_window.addChild(keys_label);
+	
+	var fullscreen_key_label:Label = new Label();
+	fullscreen_key_label.text = "F        设置/取消全屏";
+	help_window.addChild(fullscreen_key_label);
+	
+	var scrolldown_key_label:Label = new Label();
+	scrolldown_key_label.text = "J        向下滚动";
+	help_window.addChild(scrolldown_key_label);
+	
+	var scrollup_key_label:Label = new Label();
+	scrollup_key_label.text = "K        向上滚动";
+	help_window.addChild(scrollup_key_label);
+	
+	var zoomin_key_label:Label = new Label();
+	zoomin_key_label.text = "]        放大";
+	help_window.addChild(zoomin_key_label);
+	
+	var zoomout_key_label:Label = new Label();
+	zoomout_key_label.text = "[        缩小";
+	help_window.addChild(zoomout_key_label);
+	
+	var help_key_label:Label = new Label();
+	help_key_label.text = "H        打开/关闭帮助";
+	help_window.addChild(help_key_label);
+}
+
+private function adjust_context_menu():void {
+	var context_menu:ContextMenu = Application.application.contextMenu;
+	
+	context_menu.hideBuiltInItems()
+	
+	zoom_in_item = new ContextMenuItem("放大");
+	zoom_in_item.addEventListener(
+		ContextMenuEvent.MENU_ITEM_SELECT,
+		function():void {
+			scale_content(10);
+		}
+	)
+	context_menu.customItems.push(zoom_in_item);
+	
+	zoom_out_item = new ContextMenuItem("缩小");
+	zoom_out_item.addEventListener(
+		ContextMenuEvent.MENU_ITEM_SELECT,
+		function():void {
+			scale_content(-10);
+		}
+	)
+	context_menu.customItems.push(zoom_out_item);
+	
+	search_item = new ContextMenuItem("搜索", true);
+	search_item.addEventListener(
+		ContextMenuEvent.MENU_ITEM_SELECT,
+		function():void {
+			toggle_search_panel();
+		}
+	)
+	context_menu.customItems.push(search_item);
+	
+	help_item = new ContextMenuItem("帮助", true);
+	help_item.addEventListener(
+		ContextMenuEvent.MENU_ITEM_SELECT,
+		function():void {
+			handle_help();
+		}
+	)
+	context_menu.customItems.push(help_item);
 }
 
 private function observe_event():void {
@@ -114,7 +228,60 @@ private function observe_event():void {
 		function(event:MenuEvent):void {
 			handle_info_menu_item(event.index);
 		}
-	)
+	);
+	
+	
+	var keyboard_handler:Function = function(event:KeyboardEvent):void {
+		if(Application.application.focusManager.getFocus() != null &&
+			search_panel.contains(Application.application.focusManager.getFocus())) {
+			return;
+		}
+		
+		switch(event.keyCode) {
+			// F
+			case 70:
+				toggle_fullscreen();
+				break;
+			// J
+			case 74:
+				scroll_content(100);
+				break;
+			// K
+			case 75:
+				scroll_content(-100);
+				break;
+			// ]
+			case 221:
+				if(big_btn.enabled) {
+					scale_content(10);
+				}
+				break;
+			// [
+			case 219:
+				if(small_btn.enabled) {
+					scale_content(-10);
+				}
+				break;
+			// H
+			case 72:
+				handle_help();
+				break;
+			default:
+				break;
+		}
+	}
+	Application.application.stage.addEventListener(
+		KeyboardEvent.KEY_DOWN,
+		keyboard_handler
+	);
+	content_container.addEventListener(
+		KeyboardEvent.KEY_DOWN,
+		keyboard_handler
+	);
+	content.addEventListener(
+		KeyboardEvent.KEY_DOWN,
+		keyboard_handler
+	);
 }
 
 private function load_content():void {
@@ -177,12 +344,19 @@ private function scroll_to(dest:int):void {
 	scroll.play();
 }
 
+private function scroll_content(delta:int):void {
+	scroll_to(content_container.verticalScrollPosition + delta);
+}
+
 private function scale_content(step:int):void {
 	content.scaleX += step / 100;
 	content.scaleY = content.scaleX;
 	
 	big_btn.enabled = content.scaleX < 5;
 	small_btn.enabled = content.scaleX > 0.2;
+	
+	zoom_in_item.enabled = big_btn.enabled;
+	zoom_out_item.enabled = small_btn.enabled;
 	
 	highlighter.reset();
 }
@@ -191,10 +365,15 @@ private function toggle_search_panel():void {
 	if(search_panel.visible) {
 		search_panel.visible = false;
 		search_panel.includeInLayout = false;
+		
+		highlighter.reset();
+		all_highlighter.reset();
 	}
 	else {
 		search_panel.visible = true;
 		search_panel.includeInLayout = true;
+		
+		search_box.setFocus();
 	}
 }
 
@@ -264,9 +443,23 @@ private function handle_embed():void {
 }
 
 private function handle_help():void {
-	content.text += "help is clicked ... ";
+	if(help_window.visible) {
+		help_window.visible = false;
+		help_window.includeInLayout = false;
+	}
+	else {
+		help_window.visible = true;
+		help_window.includeInLayout = true;
+		
+		position_help_window();
+	}
 }
 
 private function handle_about():void {
 	content.text += "about is clicked ... ";
+}
+
+private function position_help_window():void {
+	help_window.x = (Application.application.stage.stageWidth - help_window.width) / 2;
+	help_window.y = (Application.application.stage.stageHeight - help_window.height) / 2;
 }
