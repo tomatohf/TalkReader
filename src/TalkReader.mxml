@@ -154,6 +154,7 @@
 			id="content"
 			horizontalCenter="0"
 			paddingTop="10"
+			paddingBottom="20"
 			paddingLeft="10"
 			paddingRight="10"
 			verticalScrollPolicy="off"

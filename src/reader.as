@@ -1,3 +1,5 @@
+import com.qiaobutang.talk.reader.Highlighter;
+
 import flash.display.StageScaleMode;
 import flash.events.ContextMenuEvent;
 import flash.events.FullScreenEvent;
@@ -7,8 +9,6 @@ import flash.net.navigateToURL;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
 import flash.utils.setTimeout;
-
-import flexlib.controls.Highlighter;
 
 import mx.containers.TitleWindow;
 import mx.controls.Label;
@@ -66,8 +66,8 @@ private function init_app():void {
 }
 
 private function init_highlighter():void {
-	all_highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFFFFFF00, 10, 10);
-	highlighter = new Highlighter(content.mx_internal::getTextField(), 0xFF00FF00, 10, 10);
+	all_highlighter = new Highlighter(content_container, content, 0xFFFFFF00, 10, 10);
+	highlighter = new Highlighter(content_container, content, 0xFF00FF00, 10, 10);
 }
 
 private function init_menu():void {
@@ -330,7 +330,8 @@ private function get_content_height():int {
 	var h:uint = 0;
 	for(var i:int = 0; i < content.mx_internal::getTextField().numLines; i++) {
 		var metrics:TextLineMetrics = content.mx_internal::getTextField().getLineMetrics(i);
-		h += metrics.height + metrics.leading + 2;
+		//h += metrics.height + metrics.leading + 2;
+		h += metrics.height;
 	}
 	
 	return h;
