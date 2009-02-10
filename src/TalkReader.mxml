@@ -16,6 +16,7 @@
 	<mx:XML id="info_menu_provider">
 		<root>
 			<item label="查看更多" icon="more_icon" />
+			<item label="我要评论" icon="comment_icon" />
 			
 			<item type="separator" />
 			

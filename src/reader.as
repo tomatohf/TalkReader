@@ -29,6 +29,7 @@ private var app_bar_gap:int = 1;
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
 [Embed(source="resources/more_icon.gif")]public var more_icon:Class;
+[Embed(source="resources/comment_icon.gif")]public var comment_icon:Class;
 [Embed(source="resources/share_icon.gif")]public var share_icon:Class;
 [Embed(source="resources/embed_icon.gif")]public var embed_icon:Class;
 [Embed(source="resources/help_icon.gif")]public var help_icon:Class;
@@ -413,16 +414,19 @@ private function handle_info_menu_item(item_index:int):void {
 		case 0:
 			handle_more();
 			break;
-		case 2:
-			handle_share();
+		case 1:
+			handle_comment();
 			break;
 		case 3:
+			handle_share();
+			break;
+		case 4:
 			handle_embed();
 			break;
-		case 5:
+		case 6:
 			handle_help();
 			break;
-		case 6:
+		case 7:
 			handle_about();
 			break;
 		default:
@@ -432,15 +436,19 @@ private function handle_info_menu_item(item_index:int):void {
 }
 
 private function handle_more():void {
-	content.text += "more is clicked ... ";
+	content.text = "more is clicked ... " + content.text;
+}
+
+private function handle_comment():void {
+	content.text = "comment is clicked ... " + content.text;
 }
 
 private function handle_share():void {
-	content.text += "share is clicked ... ";
+	content.text = "share is clicked ... " + content.text;
 }
 
 private function handle_embed():void {
-	content.text += "embed is clicked ... ";
+	content.text = "embed is clicked ... " + content.text;
 }
 
 private function handle_help():void {
@@ -457,7 +465,7 @@ private function handle_help():void {
 }
 
 private function handle_about():void {
-	content.text += "about is clicked ... ";
+	content.text = "about is clicked ... " + content.text;
 }
 
 private function position_help_window():void {
