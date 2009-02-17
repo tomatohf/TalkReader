@@ -28,7 +28,7 @@ import mx.rpc.events.ResultEvent;
 import mx.utils.StringUtil;
 
 // configuratioin values
-[Bindable]private var website:String = "http://www.qiaobutang.com";
+[Bindable]private var website:String = "http://192.168.1.101:3002";//"http://www.qiaobutang.com";
 [Bindable]private var app_bar_gap:int = 1;
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
@@ -40,7 +40,7 @@ import mx.utils.StringUtil;
 [Embed(source="resources/about_icon.png")]public var about_icon:Class;
 
 
-private var talk_id:uint = 0;
+private var talk_id:uint = 1001;
 
 private var all_highlighter:Highlighter;
 private var highlighter:Highlighter;
@@ -377,6 +377,10 @@ private function on_got_content(event:ResultEvent):void {
 	hide_loading_window();
 	
 	
+	if(event.result == "") {
+		return on_fault(null);
+	}
+	
 	layout_content(event.result);
 	
 	content.height = get_content_height();
@@ -392,8 +396,17 @@ private function layout_content(talk_content:Object):void {
 	content.htmlText += "<br />";
 	
 	// add desc
-	content.htmlText += paragraph_text(bold_text("写在前面:"));
-	content.htmlText += paragraph_text(talk_content.desc);
+	var talk_content_desc:String = talk_content.desc;
+	if(talk_content_desc != null && talk_content_desc != "") {
+		content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
+		var descs:Array = talk_content_desc.split("\n");
+		for(var k:int = 0; k < descs.length; k++) {
+			var a_desc:String = StringUtil.trim(descs[k]);
+			if(a_desc != null && a_desc != "") {
+				content.htmlText += paragraph_text(font_text(a_desc, 12, "#555555", "黑体"));
+			}
+		}
+	}
 	
 	
 	var talkers:Object = talk_content.talkers;
@@ -409,9 +422,8 @@ private function layout_content(talk_content:Object):void {
 			var category:Object = categories["category_" + question.category_id];
 			if(category != null) {
 				// should display category info
-				if(i > 0) {
-					content.htmlText += "<br /><br />";
-				}
+				content.htmlText += "<br /><br />";
+
 				content.htmlText += paragraph_text(bold_text(font_text(category.name, 18)));
 				content.htmlText += paragraph_text(italic_text(font_text(category.desc, 0, "#555555")));
 				content.htmlText += "<br />";
@@ -470,10 +482,11 @@ private function paragraph_text(text:String, align:String = null):String {
 			"</p>";
 }
 
-private function font_text(text:String, size:int = 0, color:String = null):String {
+private function font_text(text:String, size:int = 0, color:String = null, face:String = null):String {
 	return "<font" +
 			((size == 0) ? "" : " size='" + size + "'") + 
-			((color == null) ? "" : " color='" + color + "'") + 
+			((color == null) ? "" : " color='" + color + "'") +
+			((face == null) ? "" : " face='" + face + "'") + 
 			">" +
 				text +  
 			"</font>";
