@@ -11,20 +11,24 @@ import flash.ui.ContextMenuItem;
 import flash.utils.setTimeout;
 
 import mx.containers.TitleWindow;
+import mx.controls.Image;
 import mx.controls.Label;
+import mx.controls.LinkButton;
 import mx.controls.Menu;
+import mx.controls.Spacer;
 import mx.core.Application;
 import mx.effects.AnimateProperty;
 import mx.events.CloseEvent;
 import mx.events.MenuEvent;
 import mx.managers.CursorManager;
 import mx.managers.PopUpManager;
+import mx.rpc.events.FaultEvent;
+import mx.rpc.events.ResultEvent;
 import mx.utils.StringUtil;
 
 // configuratioin values
-private var website:String = "http://qiaobutang.com";
-[Bindable]
-private var app_bar_gap:int = 1;
+[Bindable]private var website:String = "http://localhost:3002";//"http://www.qiaobutang.com";
+[Bindable]private var app_bar_gap:int = 1;
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
@@ -35,6 +39,8 @@ private var app_bar_gap:int = 1;
 [Embed(source="resources/help_icon.gif")]public var help_icon:Class;
 [Embed(source="resources/about_icon.png")]public var about_icon:Class;
 
+
+private var talk_id:uint = 1001;
 
 private var all_highlighter:Highlighter;
 private var highlighter:Highlighter;
@@ -47,6 +53,7 @@ private var search_item:ContextMenuItem;
 private var help_item:ContextMenuItem;
 
 private var help_window:TitleWindow;
+private var about_window:TitleWindow;
 
 
 private function init_app():void {
@@ -56,6 +63,7 @@ private function init_app():void {
 	init_menu();
 	
 	init_help_window();
+	init_about_window();
 	
 	adjust_context_menu();
 	
@@ -135,6 +143,71 @@ private function init_help_window():void {
 	var help_key_label:Label = new Label();
 	help_key_label.text = "H        打开/关闭帮助";
 	help_window.addChild(help_key_label);
+}
+
+private function init_about_window():void {
+	about_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, false));
+	
+	about_window.title = "关于乔布堂周三访谈录";
+	about_window.titleIcon = about_icon;
+	
+	about_window.showCloseButton = true;
+	about_window.addEventListener(
+		CloseEvent.CLOSE,
+		function():void {
+			handle_about();
+		}
+	);
+	
+	about_window.width = 250;
+	about_window.height = 200;
+	
+	about_window.visible = false;
+	about_window.includeInLayout = false;
+	
+	
+	about_window.layout = "vertical";
+	
+	var logo_image:Image = new Image();
+	logo_image.source = logo_img.source;
+	about_window.addChild(logo_image);
+	
+	var qiaobutang_talk_link_url:String = "http://www.qiaobutang.com/talks";
+	var qiaobutang_talk_link:LinkButton = new LinkButton();
+	qiaobutang_talk_link.label = qiaobutang_talk_link_url;
+	qiaobutang_talk_link.addEventListener(
+		MouseEvent.CLICK,
+		function():void {
+			navigateToURL(new URLRequest(qiaobutang_talk_link_url), "_blank");
+		}
+	);
+	about_window.addChild(qiaobutang_talk_link);
+	
+	var space:Spacer = new Spacer();
+	space.height = 20;
+	about_window.addChild(space);
+	
+	var qiaobutang_link_url:String = "http://www.qiaobutang.com";
+	var qiaobutang_link:LinkButton = new LinkButton();
+	qiaobutang_link.label = "乔布堂 " + qiaobutang_link_url;
+	qiaobutang_link.addEventListener(
+		MouseEvent.CLICK,
+		function():void {
+			navigateToURL(new URLRequest(qiaobutang_link_url), "_blank");
+		}
+	);
+	about_window.addChild(qiaobutang_link);
+	
+	var qiaobuquan_link_url:String = "http://www.qiaobuquan.com";
+	var qiaobuquan_link:LinkButton = new LinkButton();
+	qiaobuquan_link.label = "乔布圈 " + qiaobuquan_link_url;
+	qiaobuquan_link.addEventListener(
+		MouseEvent.CLICK,
+		function():void {
+			navigateToURL(new URLRequest(qiaobuquan_link_url), "_blank");
+		}
+	);
+	about_window.addChild(qiaobuquan_link);
 }
 
 private function adjust_context_menu():void {
@@ -286,14 +359,24 @@ private function observe_event():void {
 }
 
 private function load_content():void {
-	content.htmlText = "1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>" + 
-			"11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>" + 
-			"<img src='http://qiaobutang.com/images/index/qiaobuquan_logo.png' />" + 
-			"31<br/><font size='26'>32</font><br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>";
+	talk_show_service.show(talk_id);
+}
+
+private function on_got_content(event:ResultEvent):void {
+	layout_content(event.result);
 	
 	content.height = get_content_height();
 	
 	setTimeout(scroll_to, 500, 0);
+}
+
+private function layout_content(talk_content:Object):void {
+	content.htmlText += talk_content.title + "\n";
+	content.htmlText += talk_content.desc;
+}
+
+private function on_fault(event:FaultEvent):void {
+	content.htmlText = event.toString();
 }
 
 private function logo_img_click():void {
@@ -436,11 +519,13 @@ private function handle_info_menu_item(item_index:int):void {
 }
 
 private function handle_more():void {
-	content.text = "more is clicked ... " + content.text;
+	var url:URLRequest = new URLRequest(website + "/talks");
+	navigateToURL(url, "_blank");
 }
 
 private function handle_comment():void {
-	content.text = "comment is clicked ... " + content.text;
+	var url:URLRequest = new URLRequest(website + "/talks/" + talk_id + "#comment_list");
+	navigateToURL(url, "_blank");
 }
 
 private function handle_share():void {
@@ -460,15 +545,24 @@ private function handle_help():void {
 		help_window.visible = true;
 		help_window.includeInLayout = true;
 		
-		position_help_window();
+		position_window(help_window);
 	}
 }
 
 private function handle_about():void {
-	content.text = "about is clicked ... " + content.text;
+	if(about_window.visible) {
+		about_window.visible = false;
+		about_window.includeInLayout = false;
+	}
+	else {
+		about_window.visible = true;
+		about_window.includeInLayout = true;
+		
+		position_window(about_window);
+	}
 }
 
-private function position_help_window():void {
-	help_window.x = (Application.application.stage.stageWidth - help_window.width) / 2;
-	help_window.y = (Application.application.stage.stageHeight - help_window.height) / 2;
+private function position_window(window:TitleWindow):void {
+	window.x = (Application.application.stage.stageWidth - window.width) / 2;
+	window.y = (Application.application.stage.stageHeight - window.height) / 2;
 }

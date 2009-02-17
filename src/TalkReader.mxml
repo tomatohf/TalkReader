@@ -30,6 +30,14 @@
 		</root>
 	</mx:XML>
 	
+	<mx:RemoteObject
+		id="talk_show_service"
+		destination="TalkShowService"
+		endpoint="{website}/weborb"
+		result="on_got_content(event);"
+		fault="on_fault(event);"
+		/>
+	
 	
 	<mx:ApplicationControlBar width="100%" id="app_bar" horizontalGap="{app_bar_gap}">
 		<mx:Image source="@Embed(source='resources/logo.png')"
@@ -158,6 +166,7 @@
 			paddingBottom="20"
 			paddingLeft="10"
 			paddingRight="10"
+			fontSize="12"
 			verticalScrollPolicy="off"
 			horizontalScrollPolicy="off"
 			editable="false"
