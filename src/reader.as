@@ -16,6 +16,7 @@ import mx.controls.Label;
 import mx.controls.LinkButton;
 import mx.controls.Menu;
 import mx.controls.Spacer;
+import mx.controls.TextInput;
 import mx.core.Application;
 import mx.effects.AnimateProperty;
 import mx.events.CloseEvent;
@@ -27,20 +28,19 @@ import mx.rpc.events.ResultEvent;
 import mx.utils.StringUtil;
 
 // configuratioin values
-[Bindable]private var website:String = "http://localhost:3002";//"http://www.qiaobutang.com";
+[Bindable]private var website:String = "http://www.qiaobutang.com";
 [Bindable]private var app_bar_gap:int = 1;
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
 [Embed(source="resources/more_icon.gif")]public var more_icon:Class;
 [Embed(source="resources/comment_icon.gif")]public var comment_icon:Class;
-[Embed(source="resources/share_icon.gif")]public var share_icon:Class;
 [Embed(source="resources/embed_icon.gif")]public var embed_icon:Class;
 [Embed(source="resources/help_icon.gif")]public var help_icon:Class;
 [Embed(source="resources/about_icon.png")]public var about_icon:Class;
 
 
-private var talk_id:uint = 1001;
+private var talk_id:uint = 0;
 
 private var all_highlighter:Highlighter;
 private var highlighter:Highlighter;
@@ -52,18 +52,29 @@ private var zoom_out_item:ContextMenuItem;
 private var search_item:ContextMenuItem;
 private var help_item:ContextMenuItem;
 
-private var help_window:TitleWindow;
-private var about_window:TitleWindow;
+private var embed_window:TitleWindow = null;
+private var help_window:TitleWindow = null;
+private var about_window:TitleWindow = null;
+
+private var loading_window:TitleWindow = null;
 
 
 private function init_app():void {
+	show_loading_window();
+	
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
+	
+	// handle_parameters
+	if(application.parameters.talk != null){
+		talk_id = application.parameters.talk;
+	}
+	if(talk_id <= 0){
+		on_fault(null);
+		return;
+	}
 	
 	init_highlighter();
 	init_menu();
-	
-	init_help_window();
-	init_about_window();
 	
 	adjust_context_menu();
 	
@@ -75,8 +86,8 @@ private function init_app():void {
 }
 
 private function init_highlighter():void {
-	all_highlighter = new Highlighter(content_container, content, 0xFFFFFF00, 10, 10);
-	highlighter = new Highlighter(content_container, content, 0xFF00FF00, 10, 10);
+	all_highlighter = new Highlighter(content_container, content, 0xFFFFFF00, 30, 10);
+	highlighter = new Highlighter(content_container, content, 0xFF00FF00, 30, 10);
 }
 
 private function init_menu():void {
@@ -146,7 +157,7 @@ private function init_help_window():void {
 }
 
 private function init_about_window():void {
-	about_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, false));
+	about_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, true));
 	
 	about_window.title = "关于乔布堂周三访谈录";
 	about_window.titleIcon = about_icon;
@@ -160,7 +171,7 @@ private function init_about_window():void {
 	);
 	
 	about_window.width = 250;
-	about_window.height = 200;
+	about_window.height = 220;
 	
 	about_window.visible = false;
 	about_window.includeInLayout = false;
@@ -363,6 +374,9 @@ private function load_content():void {
 }
 
 private function on_got_content(event:ResultEvent):void {
+	hide_loading_window();
+	
+	
 	layout_content(event.result);
 	
 	content.height = get_content_height();
@@ -371,12 +385,139 @@ private function on_got_content(event:ResultEvent):void {
 }
 
 private function layout_content(talk_content:Object):void {
-	content.htmlText += talk_content.title + "\n";
-	content.htmlText += talk_content.desc;
+	content.htmlText = "";
+	
+	// add title
+	content.htmlText += paragraph_text(bold_text(font_text(talk_content.title, 20)), "center");
+	content.htmlText += "<br />";
+	
+	// add desc
+	content.htmlText += paragraph_text(bold_text("写在前面:"));
+	content.htmlText += paragraph_text(talk_content.desc);
+	
+	
+	var talkers:Object = talk_content.talkers;
+	var categories:Object = talk_content.categories;
+	
+	var current_category:Object = new Object();
+	var questions:Array = talk_content.questions;
+	for(var i:int = 0; i < questions.length; i++) {
+		var question:Object = questions[i];
+		
+		if(question.category_id != current_category.id) {
+			// should handle category
+			var category:Object = categories["category_" + question.category_id];
+			if(category != null) {
+				// should display category info
+				if(i > 0) {
+					content.htmlText += "<br /><br />";
+				}
+				content.htmlText += paragraph_text(bold_text(font_text(category.name, 18)));
+				content.htmlText += paragraph_text(italic_text(font_text(category.desc, 0, "#555555")));
+				content.htmlText += "<br />";
+			}
+			
+			current_category = category;
+		}
+		
+		// add question
+		content.htmlText += paragraph_text(bold_text("乔布堂:" + "  " + question.question));
+		
+		// add answers
+		var answers:Array = question.answers;
+		for(var j:int = 0; j < answers.length; j++) {
+			var answer:Object = answers[j];
+			
+			// add answer
+			content.htmlText += paragraph_text(
+				bold_text(talkers["talker_" + answer.talker_id].name + ":") + 
+				"  " + 
+				answer.answer
+			);
+		}
+		
+		//content.htmlText += "<br />";
+	}
+	
+			
+	// add publish time
+	content.htmlText += "<br />";
+	content.htmlText += paragraph_text(
+		italic_text(
+			font_text(talk_content.publish_time + " 发布", 10)
+		),
+		"right"
+	);
+}
+
+private function bold_text(text:String):String {
+	return "<b>" +
+				text +  
+			"</b>";
+}
+
+private function italic_text(text:String):String {
+	return "<i>" +
+				text +  
+			"</i>";
+}
+
+private function paragraph_text(text:String, align:String = null):String {
+	return "<p" +
+			((align == null) ? "" : " align='" + align + "'") + 
+			">" +
+				text +  
+			"</p>";
+}
+
+private function font_text(text:String, size:int = 0, color:String = null):String {
+	return "<font" +
+			((size == 0) ? "" : " size='" + size + "'") + 
+			((color == null) ? "" : " color='" + color + "'") + 
+			">" +
+				text +  
+			"</font>";
+}
+
+private function show_loading_window():void {
+	if(loading_window == null) {
+		loading_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, true));
+		
+		loading_window.showCloseButton = false;
+		
+		loading_window.width = Application.application.stage.stageWidth;
+		loading_window.title = "正在读取访谈录 ...";
+		
+		loading_window.setStyle("cornerRadius", 0);
+		loading_window.setStyle("backgroundColor", "#FFFDC0");
+		loading_window.setStyle("borderColor", "#FFFDC0");
+		loading_window.setStyle("borderAlpha", 1.0);
+	}
+
+	loading_window.includeInLayout = true;
+	loading_window.visible = true;
+}
+
+private function hide_loading_window():void {
+	loading_window.visible = false;
+	loading_window.includeInLayout = false;
 }
 
 private function on_fault(event:FaultEvent):void {
-	content.htmlText = event.toString();
+	hide_loading_window();
+	
+	
+	var fault_window:TitleWindow = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, true));
+	
+	fault_window.showCloseButton = false;
+	
+	fault_window.width = Application.application.stage.stageWidth;
+	fault_window.title = "发生错误, 读取数据失败 ...";
+	
+	fault_window.setStyle("cornerRadius", 0);
+	fault_window.setStyle("backgroundColor", "red");
+	fault_window.setStyle("borderColor", "red");
+	fault_window.setStyle("borderAlpha", 1.0);
 }
 
 private function logo_img_click():void {
@@ -394,6 +535,8 @@ private function toggle_fullscreen():void {
 			Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
 			break;
 	}
+	
+	content.height = get_content_height();
 }
 
 private function toggle_fullscreen_btn(is_full:Boolean):void {
@@ -501,15 +644,12 @@ private function handle_info_menu_item(item_index:int):void {
 			handle_comment();
 			break;
 		case 3:
-			handle_share();
-			break;
-		case 4:
 			handle_embed();
 			break;
-		case 6:
+		case 5:
 			handle_help();
 			break;
-		case 7:
+		case 6:
 			handle_about();
 			break;
 		default:
@@ -528,15 +668,76 @@ private function handle_comment():void {
 	navigateToURL(url, "_blank");
 }
 
-private function handle_share():void {
-	content.text = "share is clicked ... " + content.text;
-}
-
 private function handle_embed():void {
-	content.text = "embed is clicked ... " + content.text;
+	if(embed_window == null) {
+		embed_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, true));
+	
+		embed_window.title = "引用和转载的嵌入代码";
+		embed_window.titleIcon = embed_icon;
+		
+		embed_window.showCloseButton = true;
+		embed_window.addEventListener(
+			CloseEvent.CLOSE,
+			function():void {
+				handle_embed();
+			}
+		);
+	
+		embed_window.width = 250;
+		embed_window.height = 150;
+	
+		embed_window.visible = false;
+		embed_window.includeInLayout = false;
+	
+	
+		embed_window.layout = "vertical";
+		
+		var flash_address_label:Label = new Label();
+		flash_address_label.text = "flash 地址:";
+		embed_window.addChild(flash_address_label);
+		
+		var flash_address_text:TextInput = new TextInput();
+		flash_address_text.text = website + "/swf/TalkReader.swf?talk=" + talk_id;
+		flash_address_text.width = 210;
+		embed_window.addChild(flash_address_text);
+		
+		var html_code_label:Label = new Label();
+		html_code_label.text = "html 代码:";
+		embed_window.addChild(html_code_label);
+		
+		var html_code_text:TextInput = new TextInput();
+		html_code_text.text = "<embed src=\"" +
+			website + "/swf/TalkReader.swf?talk=" + talk_id + 
+			"\" quality=\"high\"" + 
+			" bgcolor=\"#b2b2b2\"" + 
+			" width=\"100%\"" + 
+			" height=\"400\"" + 
+			" align=\"middle\"" + 
+			" allowScriptAccess=\"sameDomain\"" +
+			" allowFullScreen=\"true\"" + 
+			" type=\"application/x-shockwave-flash\">" + 
+			"</embed>";
+		html_code_text.width = 210;
+		embed_window.addChild(html_code_text);
+	}
+	
+	if(embed_window.visible) {
+		embed_window.visible = false;
+		embed_window.includeInLayout = false;
+	}
+	else {
+		embed_window.visible = true;
+		embed_window.includeInLayout = true;
+		
+		position_window(embed_window);
+	}
 }
 
 private function handle_help():void {
+	if(help_window == null) {
+		init_help_window();
+	}
+	
 	if(help_window.visible) {
 		help_window.visible = false;
 		help_window.includeInLayout = false;
@@ -550,6 +751,10 @@ private function handle_help():void {
 }
 
 private function handle_about():void {
+	if(about_window == null) {
+		init_about_window();
+	}
+	
 	if(about_window.visible) {
 		about_window.visible = false;
 		about_window.includeInLayout = false;

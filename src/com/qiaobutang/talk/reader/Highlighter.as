@@ -226,7 +226,7 @@ package com.qiaobutang.talk.reader
 			}
 			
 			// to consider the scale
-			h = h * this.field_area.scaleX;
+			h = h * this.field_area.scaleY;
 			
 			var container_h:int = this.field_container.height;
 			this.field_container.verticalScrollPosition = (h > container_h) ? (h - container_h + 10) : 0;
