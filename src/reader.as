@@ -428,6 +428,7 @@ private function layout_content(talk_content:Object):void {
 	
 	// add desc
 	content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
+	content.htmlText += "<br />";
 	var descs:Array = multiple_lines(talk_content.desc);
 	for(var desc_i:int = 0; desc_i < descs.length; desc_i++) {
 		content.htmlText += paragraph_text("    " + font_text(descs[desc_i], 12, "#555555", "黑体"));
