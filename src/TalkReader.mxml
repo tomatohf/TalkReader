@@ -13,6 +13,16 @@
 	
 	<mx:Script source="reader.as"></mx:Script>
 	
+	<mx:Style>
+		.windowStyles {
+			font-size: 13px;
+		}
+		
+		TitleWindow {
+			font-size:13px;
+		}
+	</mx:Style>
+	
 	<mx:XML id="info_menu_provider">
 		<root>
 			<item label="查看更多" icon="more_icon" />

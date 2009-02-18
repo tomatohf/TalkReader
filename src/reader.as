@@ -63,6 +63,8 @@ private function init_app():void {
 	
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
+	update_content_height(1000);
+	
 	if(Application.application.loaderInfo.loaderURL.indexOf("file") == 0) {
 		// local ...
 		talk_show_service.endpoint = "http://localhost:3002/weborb";
@@ -123,7 +125,7 @@ private function init_help_window():void {
 	);
 	
 	help_window.width = 200;
-	help_window.height = 220;
+	help_window.height = 300;
 	
 	help_window.visible = false;
 	help_window.includeInLayout = false;
@@ -147,6 +149,14 @@ private function init_help_window():void {
 	var scrollup_key_label:Label = new Label();
 	scrollup_key_label.text = "K        向上滚动";
 	help_window.addChild(scrollup_key_label);
+	
+	var scrolltop_key_label:Label = new Label();
+	scrolltop_key_label.text = "T        滚动到顶";
+	help_window.addChild(scrolltop_key_label);
+	
+	var scrollbottom_key_label:Label = new Label();
+	scrollbottom_key_label.text = "B        滚动到底";
+	help_window.addChild(scrollbottom_key_label);
 	
 	var zoomin_key_label:Label = new Label();
 	zoomin_key_label.text = "]        放大";
@@ -176,7 +186,7 @@ private function init_about_window():void {
 	);
 	
 	about_window.width = 250;
-	about_window.height = 220;
+	about_window.height = 300;
 	
 	about_window.visible = false;
 	about_window.includeInLayout = false;
@@ -188,7 +198,7 @@ private function init_about_window():void {
 	logo_image.source = logo_img.source;
 	about_window.addChild(logo_image);
 	
-	var qiaobutang_talk_link_url:String = "http://www.qiaobutang.com/talks";
+	var qiaobutang_talk_link_url:String = "qiaobutang.com/talks";
 	var qiaobutang_talk_link:LinkButton = new LinkButton();
 	qiaobutang_talk_link.label = qiaobutang_talk_link_url;
 	qiaobutang_talk_link.addEventListener(
@@ -203,9 +213,13 @@ private function init_about_window():void {
 	space.height = 20;
 	about_window.addChild(space);
 	
-	var qiaobutang_link_url:String = "http://www.qiaobutang.com";
+	var qiaobutang_label:Label = new Label();
+	qiaobutang_label.text = "乔布堂";
+	about_window.addChild(qiaobutang_label);
+	
+	var qiaobutang_link_url:String = "www.qiaobutang.com";
 	var qiaobutang_link:LinkButton = new LinkButton();
-	qiaobutang_link.label = "乔布堂 " + qiaobutang_link_url;
+	qiaobutang_link.label = qiaobutang_link_url;
 	qiaobutang_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
@@ -214,9 +228,13 @@ private function init_about_window():void {
 	);
 	about_window.addChild(qiaobutang_link);
 	
-	var qiaobuquan_link_url:String = "http://www.qiaobuquan.com";
+	var qiaobuquan_label:Label = new Label();
+	qiaobuquan_label.text = "乔布圈";
+	about_window.addChild(qiaobuquan_label);
+	
+	var qiaobuquan_link_url:String = "www.qiaobuquan.com";
 	var qiaobuquan_link:LinkButton = new LinkButton();
-	qiaobuquan_link.label = "乔布圈 " + qiaobuquan_link_url;
+	qiaobuquan_link.label = qiaobuquan_link_url;
 	qiaobuquan_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
@@ -340,6 +358,14 @@ private function observe_event():void {
 			case 75:
 				scroll_content(-100);
 				break;
+			// T
+			case 84:
+				set_scroll_position(0);
+				break;
+			// B
+			case 66:
+				set_scroll_position(content_container.maxVerticalScrollPosition);
+				break;
 			// ]
 			case 221:
 				if(big_btn.enabled) {
@@ -388,7 +414,7 @@ private function on_got_content(event:ResultEvent):void {
 	
 	layout_content(event.result);
 	
-	content.height = get_content_height();
+	update_content_height();
 	
 	setTimeout(scroll_to, 500, 0);
 }
@@ -401,16 +427,10 @@ private function layout_content(talk_content:Object):void {
 	content.htmlText += "<br />";
 	
 	// add desc
-	var talk_content_desc:String = talk_content.desc;
-	if(talk_content_desc != null && talk_content_desc != "") {
-		content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
-		var descs:Array = talk_content_desc.split("\n");
-		for(var k:int = 0; k < descs.length; k++) {
-			var a_desc:String = StringUtil.trim(descs[k]);
-			if(a_desc != null && a_desc != "") {
-				content.htmlText += paragraph_text(font_text(a_desc, 12, "#555555", "黑体"));
-			}
-		}
+	content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
+	var descs:Array = multiple_lines(talk_content.desc);
+	for(var desc_i:int = 0; desc_i < descs.length; desc_i++) {
+		content.htmlText += paragraph_text("    " + font_text(descs[desc_i], 12, "#555555", "黑体"));
 	}
 	
 	
@@ -430,7 +450,12 @@ private function layout_content(talk_content:Object):void {
 				content.htmlText += "<br /><br />";
 
 				content.htmlText += paragraph_text(bold_text(font_text(category.name, 18)));
-				content.htmlText += paragraph_text(italic_text(font_text(category.desc, 0, "#555555")));
+				
+				var category_descs:Array = multiple_lines(category.desc);
+				for(var category_desc_i:int = 0; category_desc_i < category_descs.length; category_desc_i++) {
+					content.htmlText += list_text(italic_text(font_text(category_descs[category_desc_i], 0, "#555555")));
+				}
+				
 				content.htmlText += "<br />";
 			}
 			
@@ -438,7 +463,7 @@ private function layout_content(talk_content:Object):void {
 		}
 		
 		// add question
-		content.htmlText += paragraph_text(bold_text("乔布堂:" + "  " + question.question));
+		content.htmlText += paragraph_text(font_text(bold_text("乔布堂:" + "  " + question.question), 0, "#FF6600"));
 		
 		// add answers
 		var answers:Array = question.answers;
@@ -456,6 +481,10 @@ private function layout_content(talk_content:Object):void {
 		//content.htmlText += "<br />";
 	}
 	
+	
+	// add end icon
+	content.htmlText += image_content("http://localhost:3002/images/index/talk_icon.png");
+	
 			
 	// add publish time
 	content.htmlText += "<br />";
@@ -465,6 +494,22 @@ private function layout_content(talk_content:Object):void {
 		),
 		"right"
 	);
+}
+
+private function multiple_lines(text:String):Array {
+	var results:Array = new Array();
+	
+	if(text != null && text != "") {
+		var lines:Array = text.split("\n");
+		for(var k:int = 0; k < lines.length; k++) {
+			var line:String = StringUtil.trim(lines[k]);
+			if(line != null && line != "") {
+				results.push(line);
+			}
+		}
+	}
+	
+	return results;
 }
 
 private function bold_text(text:String):String {
@@ -477,6 +522,12 @@ private function italic_text(text:String):String {
 	return "<i>" +
 				text +  
 			"</i>";
+}
+
+private function list_text(text:String):String {
+	return "<li>" +
+				text +  
+			"</li>";
 }
 
 private function paragraph_text(text:String, align:String = null):String {
@@ -495,6 +546,16 @@ private function font_text(text:String, size:int = 0, color:String = null, face:
 			">" +
 				text +  
 			"</font>";
+}
+
+private function image_content(src:String, align:String = null, id:String = null, vspace:String = null, hspace:String = null):String {
+	return "<img" +
+			" src='" + src + "'" + 	
+			((align == null) ? "" : " align='" + align + "'") +
+			((id == null) ? "" : " id='" + id + "'") + 
+			((vspace == null) ? "" : " vspace='" + vspace + "'") +
+			((hspace == null) ? "" : " hspace='" + hspace + "'") + 
+			" />";
 }
 
 private function show_loading_window():void {
@@ -553,8 +614,6 @@ private function toggle_fullscreen():void {
 			Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
 			break;
 	}
-	
-	content.height = get_content_height();
 }
 
 private function toggle_fullscreen_btn(is_full:Boolean):void {
@@ -563,10 +622,20 @@ private function toggle_fullscreen_btn(is_full:Boolean):void {
 	normal_btn.visible = is_full;
 	normal_btn.includeInLayout = is_full;
 	
-	content.width = (Application.application.stage.stageWidth - content_container.verticalScrollBar.width) / 1.1;
-	
 	app_bar_gap = is_full ? 10 : 1;
 	search_box.width = is_full ? 300 : 75;
+	
+	content.width = (Application.application.stage.stageWidth - content_container.verticalScrollBar.width) / 1.1;
+	
+	update_content_height();
+}
+
+private function update_content_height(height:int = 0):void {
+	if(height <= 0) {
+		height = get_content_height();
+	}
+	
+	content.height = height * content.scaleY + 1000;
 }
 
 private function get_content_height():int {
@@ -592,6 +661,10 @@ private function scroll_to(dest:int):void {
 
 private function scroll_content(delta:int):void {
 	scroll_to(content_container.verticalScrollPosition + delta);
+}
+
+private function set_scroll_position(position:int):void {
+	content_container.verticalScrollPosition = position;
 }
 
 private function scale_content(step:int):void {
@@ -621,6 +694,8 @@ private function toggle_search_panel():void {
 		
 		search_box.setFocus();
 	}
+	
+	toggle_highlight_all_btn.selected = false;
 }
 
 private function search_next():void {
@@ -702,7 +777,7 @@ private function handle_embed():void {
 		);
 	
 		embed_window.width = 250;
-		embed_window.height = 150;
+		embed_window.height = 200;
 	
 		embed_window.visible = false;
 		embed_window.includeInLayout = false;
