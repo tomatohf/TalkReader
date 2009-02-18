@@ -32,7 +32,7 @@
 	<mx:RemoteObject
 		id="talk_show_service"
 		destination="TalkShowService"
-		endpoint="{website}/weborb"
+		endpoint="/weborb"
 		result="on_got_content(event);"
 		fault="on_fault(event);"
 		/>

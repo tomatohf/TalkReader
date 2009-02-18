@@ -28,7 +28,6 @@ import mx.rpc.events.ResultEvent;
 import mx.utils.StringUtil;
 
 // configuratioin values
-[Bindable]private var website:String = "http://192.168.1.101:3002";//"http://www.qiaobutang.com";
 [Bindable]private var app_bar_gap:int = 1;
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
@@ -40,7 +39,7 @@ import mx.utils.StringUtil;
 [Embed(source="resources/about_icon.png")]public var about_icon:Class;
 
 
-private var talk_id:uint = 1001;
+private var talk_id:uint = 0;
 
 private var all_highlighter:Highlighter;
 private var highlighter:Highlighter;
@@ -63,6 +62,12 @@ private function init_app():void {
 	show_loading_window();
 	
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
+	
+	if(Application.application.loaderInfo.loaderURL.indexOf("file") == 0) {
+		// local ...
+		talk_show_service.endpoint = "http://localhost:3002/weborb";
+		talk_id = 1001;
+	}
 	
 	// handle_parameters
 	if(application.parameters.talk != null){
@@ -534,7 +539,7 @@ private function on_fault(event:FaultEvent):void {
 }
 
 private function logo_img_click():void {
-	var url:URLRequest = new URLRequest(website + "/");
+	var url:URLRequest = new URLRequest("http://www.qiaobutang.com");
 	navigateToURL(url, "_blank");
 }
 
@@ -672,12 +677,12 @@ private function handle_info_menu_item(item_index:int):void {
 }
 
 private function handle_more():void {
-	var url:URLRequest = new URLRequest(website + "/talks");
+	var url:URLRequest = new URLRequest("/talks");
 	navigateToURL(url, "_blank");
 }
 
 private function handle_comment():void {
-	var url:URLRequest = new URLRequest(website + "/talks/" + talk_id + "#comment_list");
+	var url:URLRequest = new URLRequest("/talks/" + talk_id + "#comment_list");
 	navigateToURL(url, "_blank");
 }
 
@@ -710,8 +715,14 @@ private function handle_embed():void {
 		embed_window.addChild(flash_address_label);
 		
 		var flash_address_text:TextInput = new TextInput();
-		flash_address_text.text = website + "/swf/TalkReader.swf?talk=" + talk_id;
+		flash_address_text.text = "http://www.qiaobutang.com/swf/TalkReader.swf?talk=" + talk_id;
 		flash_address_text.width = 210;
+		flash_address_text.editable = false;
+		flash_address_text.addEventListener(MouseEvent.CLICK,
+			function():void {
+				flash_address_text.setSelection(0, flash_address_text.text.length);
+			}
+		);
 		embed_window.addChild(flash_address_text);
 		
 		var html_code_label:Label = new Label();
@@ -720,17 +731,23 @@ private function handle_embed():void {
 		
 		var html_code_text:TextInput = new TextInput();
 		html_code_text.text = "<embed src=\"" +
-			website + "/swf/TalkReader.swf?talk=" + talk_id + 
+			"http://www.qiaobutang.com/swf/TalkReader.swf?talk=" + talk_id + 
 			"\" quality=\"high\"" + 
 			" bgcolor=\"#b2b2b2\"" + 
 			" width=\"100%\"" + 
 			" height=\"400\"" + 
 			" align=\"middle\"" + 
-			" allowScriptAccess=\"sameDomain\"" +
+			//" allowScriptAccess=\"sameDomain\"" +
 			" allowFullScreen=\"true\"" + 
 			" type=\"application/x-shockwave-flash\">" + 
 			"</embed>";
 		html_code_text.width = 210;
+		html_code_text.editable = false;
+		html_code_text.addEventListener(MouseEvent.CLICK,
+			function():void {
+				html_code_text.setSelection(0, html_code_text.text.length);
+			}
+		);
 		embed_window.addChild(html_code_text);
 	}
 	
