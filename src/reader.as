@@ -6,6 +6,7 @@ import flash.events.FullScreenEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.net.navigateToURL;
+import flash.text.StyleSheet;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
 import flash.utils.setTimeout;
@@ -89,7 +90,37 @@ private function init_app():void {
 	
 	toggle_fullscreen_btn(false);
 	
+	init_content_styles();
+	
 	load_content();
+}
+
+private function init_content_styles():void {
+	var ss:StyleSheet = new StyleSheet();
+	
+	ss.setStyle(
+		"a",
+		{
+			color: "#3B5998",
+			textDecoration: "underline"
+		}
+	);
+	
+	ss.setStyle(
+		"a:hover",
+		{
+			color: "#FF6600"
+		}
+	);
+	
+	ss.setStyle(
+		"a:active",
+		{
+			textDecoration: "none"
+		}
+	);
+
+	content.styleSheet = ss;
 }
 
 private function init_highlighter():void {
@@ -198,13 +229,13 @@ private function init_about_window():void {
 	logo_image.source = logo_img.source;
 	about_window.addChild(logo_image);
 	
-	var qiaobutang_talk_link_url:String = "qiaobutang.com/talks";
+	var qiaobutang_talk_link_url:String = "talks.qiaobutang.com";
 	var qiaobutang_talk_link:LinkButton = new LinkButton();
 	qiaobutang_talk_link.label = qiaobutang_talk_link_url;
 	qiaobutang_talk_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
-			navigateToURL(new URLRequest("http://www." + qiaobutang_talk_link_url), "_blank");
+			navigateToURL(new URLRequest("http://" + qiaobutang_talk_link_url), "_blank");
 		}
 	);
 	about_window.addChild(qiaobutang_talk_link);
@@ -486,12 +517,34 @@ private function layout_content(talk_content:Object):void {
 	// add end icon
 	content.htmlText += image_content("http://localhost:3002/images/index/talk_icon.png");
 	
-			
+	
 	// add publish time
 	content.htmlText += "<br />";
 	content.htmlText += paragraph_text(
 		italic_text(
 			font_text(talk_content.publish_time + " 发布", 10)
+		),
+		"right"
+	);
+	
+	
+	// add copyright
+	content.htmlText += "<br />";
+	content.htmlText += paragraph_text(
+		font_text(
+			"Copyright © " + 
+			link_text(
+				"乔布堂",
+				"http://www.qiaobutang.com"
+			),
+			10
+		),
+		"right"
+	);
+	content.htmlText += paragraph_text(
+		font_text(
+			"All rights reserved",
+			10
 		),
 		"right"
 	);
@@ -523,6 +576,15 @@ private function italic_text(text:String):String {
 	return "<i>" +
 				text +  
 			"</i>";
+}
+
+private function link_text(text:String, href:String):String {
+	return "<a" +
+			" href='" + href + "'" + 
+			" target='_blank'" + 
+			">" +
+				text +  
+			"</a>";
 }
 
 private function list_text(text:String):String {
@@ -601,7 +663,7 @@ private function on_fault(event:FaultEvent):void {
 }
 
 private function logo_img_click():void {
-	var url:URLRequest = new URLRequest("http://www.qiaobutang.com");
+	var url:URLRequest = new URLRequest("http://talks.qiaobutang.com");
 	navigateToURL(url, "_blank");
 }
 
@@ -753,7 +815,7 @@ private function handle_info_menu_item(item_index:int):void {
 }
 
 private function handle_more():void {
-	var url:URLRequest = new URLRequest("http://www.qiaobutang.com/talks");
+	var url:URLRequest = new URLRequest("http://talks.qiaobutang.com");
 	navigateToURL(url, "_blank");
 }
 
