@@ -1,4 +1,4 @@
-import com.qiaobutang.talk.reader.Highlighter;
+import com.qiaobutang.talk.reader.text.Highlighter;
 
 import flash.display.StageScaleMode;
 import flash.events.ContextMenuEvent;

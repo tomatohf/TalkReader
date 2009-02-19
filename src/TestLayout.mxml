@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:reader="com.qiaobutang.talk.reader.*"
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:reader_container="com.qiaobutang.talk.reader.container.*"
 	layout="vertical"
 	applicationComplete="init();"
 	paddingTop="0"
@@ -117,7 +118,7 @@
 		
 	</mx:ApplicationControlBar>
 	
-	<reader:ReaderContentCanvas width="100%" height="100%" id="text_area_container" borderColor="#808080" borderStyle="inset" useHandCursor="true" buttonMode="true">
+	<reader_container:ReaderContentCanvas width="100%" height="100%" id="text_area_container" borderColor="#808080" borderStyle="inset" useHandCursor="true" buttonMode="true">
 		<mx:TextArea id="text_area" horizontalCenter="0" paddingLeft="20" paddingRight="20" verticalScrollPolicy="off" horizontalScrollPolicy="off" editable="false" wordWrap="true" enabled="true" borderThickness="0" displayAsPassword="false" selectable="false">
 			<mx:htmlText><![CDATA[ 				<p>You can include an image in your HTML text width the &lt;img&gt;tag.</p> 				<p> 					<img src='http://qiaobutang.com/images/index/qiaobuquan_logo.png' /> 					Here is text that follows the image.I'am extending the text by lengthening this sentence until it's long enough to show warpping around the bottom of the image. 				</p>
 						<p>
@@ -160,6 +161,6 @@
 					</p>
 			 			]]></mx:htmlText>
 		</mx:TextArea>
-	</reader:ReaderContentCanvas>
+	</reader_container:ReaderContentCanvas>
 	
 </mx:Application>
