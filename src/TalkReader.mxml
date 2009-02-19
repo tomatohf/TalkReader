@@ -48,7 +48,7 @@
 		/>
 	
 	
-	<mx:ApplicationControlBar width="100%" id="app_bar" horizontalGap="{app_bar_gap}">
+	<mx:ApplicationControlBar width="100%" id="app_bar">
 		<mx:Image source="@Embed(source='resources/logo.png')"
 			id="logo_img"
 			click="logo_img_click()"
@@ -60,100 +60,137 @@
 		<mx:Spacer width="100%"></mx:Spacer>
 		
 		
-		<mx:Button
-			id="info_menu_btn"
-			label=""
-			icon="@Embed(source='resources/dropdown_menu_icon.gif')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="更多菜单"
-			width="24"
-			height="24"
-			click="show_info_menu()"
-			mouseOver="show_info_menu()"
-			buttonMode="true"
-			/>
-			
-		<mx:Spacer width="3"></mx:Spacer>
+		<mx:VBox horizontalAlign="right" verticalGap="1">
 		
-		<mx:VRule
-			height="16"
-			strokeColor="#808080"
-			/>
+			<mx:HBox id="toolbar_1" horizontalGap="{toolbar_gap}">
+				<mx:Button
+					label=""
+					icon="{about_icon}"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="关于乔布堂周三访谈录"
+					width="24"
+					height="24"
+					click="handle_about();"
+					buttonMode="true"
+					/>
+					
+				<mx:Button
+					label=""
+					icon="{help_icon}"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="帮助信息"
+					width="24"
+					height="24"
+					click="handle_help();"
+					buttonMode="true"
+					/>
+					
+				<mx:Button
+					label=""
+					icon="{embed_icon}"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="获取嵌入代码"
+					width="24"
+					height="24"
+					click="handle_embed();"
+					buttonMode="true"
+					/>
+					
+				<mx:Button
+					label=""
+					icon="{more_icon}"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="查看更多"
+					width="24"
+					height="24"
+					click="handle_more();"
+					buttonMode="true"
+					/>
+				
+				<mx:Button
+					label=""
+					icon="{comment_icon}"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="我要评论"
+					width="24"
+					height="24"
+					click="handle_comment();"
+					buttonMode="true"
+					/>
+			</mx:HBox>
 			
-		<mx:Spacer width="3"></mx:Spacer>
 			
-		<mx:Button
-			id="big_btn"
-			label=""
-			icon="@Embed(source='resources/big_icon.png')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="放大"
-			width="24"
-			height="24"
-			click="scale_content(10)"
-			buttonMode="true"
-			/>
-		<mx:Button
-			id="small_btn"
-			label=""
-			icon="@Embed(source='resources/small_icon.png')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="缩小"
-			width="24"
-			height="24"
-			click="scale_content(-10)"
-			buttonMode="true"
-			/>
-			
-		<mx:VRule
-			height="16"
-			strokeColor="#808080"
-			/>
-			
-		<mx:Button
-			label=""
-			icon="@Embed(source='resources/search_icon.gif')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="搜索"
-			width="24"
-			height="24"
-			click="toggle_search_panel()"
-			buttonMode="true"
-			/>
-			
-		<mx:VRule
-			height="16"
-			strokeColor="#808080"
-			/>
-		
-		<mx:Button
-			id="fullscreen_btn"
-			label=""
-			icon="@Embed(source='resources/fullscreen_icon.gif')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="全屏阅读"
-			width="24"
-			height="24"
-			click="toggle_fullscreen()"
-			buttonMode="true"
-			/>
-		<mx:Button
-			id="normal_btn"
-			label=""
-			icon="@Embed(source='resources/normal_icon.gif')"
-			paddingLeft="0"
-			paddingRight="0"
-			toolTip="退出全屏"
-			width="24"
-			height="24"
-			click="toggle_fullscreen()"
-			buttonMode="true"
-			/>
+			<mx:HBox id="toolbar_2" horizontalGap="{toolbar_gap}">
+				<mx:Button
+					id="big_btn"
+					label=""
+					icon="@Embed(source='resources/big_icon.png')"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="放大"
+					width="24"
+					height="24"
+					click="scale_content(10)"
+					buttonMode="true"
+					/>
+					
+				<mx:Button
+					id="small_btn"
+					label=""
+					icon="@Embed(source='resources/small_icon.png')"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="缩小"
+					width="24"
+					height="24"
+					click="scale_content(-10)"
+					buttonMode="true"
+					/>
+					
+				<mx:Button
+					label=""
+					icon="@Embed(source='resources/search_icon.gif')"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="搜索"
+					width="24"
+					height="24"
+					click="toggle_search_panel()"
+					buttonMode="true"
+					/>
+				
+				<mx:Button
+					id="fullscreen_btn"
+					label=""
+					icon="@Embed(source='resources/fullscreen_icon.gif')"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="全屏阅读"
+					width="24"
+					height="24"
+					click="toggle_fullscreen()"
+					buttonMode="true"
+					/>
+				<mx:Button
+					id="normal_btn"
+					label=""
+					icon="@Embed(source='resources/normal_icon.gif')"
+					paddingLeft="0"
+					paddingRight="0"
+					toolTip="退出全屏"
+					width="24"
+					height="24"
+					click="toggle_fullscreen()"
+					buttonMode="true"
+					/>
+			</mx:HBox>
+				
+		</mx:VBox>
 		
 	</mx:ApplicationControlBar>
 	
