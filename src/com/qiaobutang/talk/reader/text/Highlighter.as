@@ -86,6 +86,8 @@ package com.qiaobutang.talk.reader.text
             this.boundariesToHighlight = new Array();
             
             this.canvas = new BitmapData(2000,2000,true,0x00000000);
+            // modified by Tomato
+            //this.canvas = new BitmapData(text_area.width, text_area.height, true, 0x00000000);
             
             this.bitmap = new Bitmap(canvas);
             
@@ -193,6 +195,10 @@ package com.qiaobutang.talk.reader.text
             
             var i:int = this.finder.findNext(word, caseSensitive);
             
+            if(i < 0) {
+            	return;
+            }
+            
             var line:int = this.field.getLineIndexOfChar(i);
             this.field.scrollV = line;
             
@@ -216,6 +222,10 @@ package com.qiaobutang.talk.reader.text
         public function highlightPrevious(word:String, caseSensitive:Boolean=true):void{
             this.reset();
            	var i:int = this.finder.findPrevious(word, caseSensitive);
+           	
+           	if(i < 0) {
+            	return;
+            }
             
             var line:int = this.field.getLineIndexOfChar(i);
             this.field.scrollV = line;

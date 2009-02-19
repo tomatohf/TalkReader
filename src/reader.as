@@ -739,14 +739,18 @@ private function search_next():void {
 	var text:String = search_box.text;
 	text = StringUtil.trim(text);
 	
-	highlighter.highlightNext(text, false);
+	if(text != null && text != "") {
+		highlighter.highlightNext(text, false);
+	}
 }
 
 private function search_pre():void {
 	var text:String = search_box.text;
 	text = StringUtil.trim(text);
 	
-	highlighter.highlightPrevious(text, false);
+	if(text != null && text != "") {
+		highlighter.highlightPrevious(text, false);
+	}
 }
 
 private function toggle_highlight_all():void {
@@ -754,7 +758,9 @@ private function toggle_highlight_all():void {
 		var text:String = search_box.text;
 		text = StringUtil.trim(text);
 	
-		all_highlighter.highlightWordInstances(text, false);
+		if(text != null && text != "") {
+			all_highlighter.highlightWordInstances(text, false);
+		}
 	}
 	else {
 		all_highlighter.reset();
