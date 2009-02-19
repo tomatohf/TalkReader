@@ -204,7 +204,7 @@ private function init_about_window():void {
 	qiaobutang_talk_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
-			navigateToURL(new URLRequest(qiaobutang_talk_link_url), "_blank");
+			navigateToURL(new URLRequest("http://www." + qiaobutang_talk_link_url), "_blank");
 		}
 	);
 	about_window.addChild(qiaobutang_talk_link);
@@ -223,7 +223,7 @@ private function init_about_window():void {
 	qiaobutang_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
-			navigateToURL(new URLRequest(qiaobutang_link_url), "_blank");
+			navigateToURL(new URLRequest("http://" + qiaobutang_link_url), "_blank");
 		}
 	);
 	about_window.addChild(qiaobutang_link);
@@ -238,7 +238,7 @@ private function init_about_window():void {
 	qiaobuquan_link.addEventListener(
 		MouseEvent.CLICK,
 		function():void {
-			navigateToURL(new URLRequest(qiaobuquan_link_url), "_blank");
+			navigateToURL(new URLRequest("http://" + qiaobuquan_link_url), "_blank");
 		}
 	);
 	about_window.addChild(qiaobuquan_link);
@@ -753,12 +753,12 @@ private function handle_info_menu_item(item_index:int):void {
 }
 
 private function handle_more():void {
-	var url:URLRequest = new URLRequest("/talks");
+	var url:URLRequest = new URLRequest("http://www.qiaobutang.com/talks");
 	navigateToURL(url, "_blank");
 }
 
 private function handle_comment():void {
-	var url:URLRequest = new URLRequest("/talks/" + talk_id + "#comment_list");
+	var url:URLRequest = new URLRequest("http://www.qiaobutang.com/talks/" + talk_id + "#comment_list");
 	navigateToURL(url, "_blank");
 }
 
