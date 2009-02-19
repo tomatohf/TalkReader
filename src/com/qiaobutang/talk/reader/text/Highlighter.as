@@ -1,7 +1,6 @@
 package com.qiaobutang.talk.reader.text
 {
     import flash.display.Bitmap;
-    import flash.display.BitmapData;
     import flash.events.Event;
     import flash.geom.Rectangle;
     import flash.text.TextField;
@@ -50,7 +49,9 @@ package com.qiaobutang.talk.reader.text
         /**
         * The drawing canvas for the Bitamp object.
         */
-        private var canvas:BitmapData;
+        //private var canvas:BitmapData;
+        // modified by Tomato
+        private var canvas:Canvas;
         
         /**
         * The Finder object used to search the TextField.
@@ -85,14 +86,16 @@ package com.qiaobutang.talk.reader.text
             
             this.boundariesToHighlight = new Array();
             
-            this.canvas = new BitmapData(2000,2000,true,0x00000000);
+            //this.canvas = new BitmapData(2000,2000,true,0x00000000);
             // modified by Tomato
-            //this.canvas = new BitmapData(text_area.width, text_area.height, true, 0x00000000);
+            this.canvas = new Canvas();
             
-            this.bitmap = new Bitmap(canvas);
+            //this.bitmap = new Bitmap(canvas);
             
             var ind:int = this.field.parent.getChildIndex(this.field);
-            this.field.parent.addChildAt(this.bitmap,ind-1);
+            //this.field.parent.addChildAt(this.bitmap,ind-1);
+            // modified by Tomato
+            this.field.parent.addChildAt(this.canvas,ind-1);
             
             finder = new Finder(this.field);
             
@@ -125,7 +128,9 @@ package com.qiaobutang.talk.reader.text
         * Erases all highlights from the bitmap canvas.
         */
         private function clearAllHighlights():void{
-            this.canvas.fillRect(new Rectangle(0,0,2000,2000),0x00000000);
+            //this.canvas.fillRect(new Rectangle(0,0,2000,2000),0x00000000);
+            // modified by Tomato
+            this.canvas.graphics.clear();
         }
         
         /**
@@ -140,7 +145,11 @@ package com.qiaobutang.talk.reader.text
             		var len2:int = rects.length;
             		for(var j:int=0; j<len2; j++){
             			var rect:Rectangle = rects[j];
-			            this.canvas.fillRect(rect,this.highlightColor);
+			            //this.canvas.fillRect(rect,this.highlightColor);
+			            // modified by Tomato
+			            this.canvas.graphics.beginFill(highlightColor);
+			            this.canvas.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+			            this.canvas.graphics.endFill();
             		}
             	}
             } 
@@ -252,7 +261,21 @@ package com.qiaobutang.talk.reader.text
 			h = h * this.field_area.scaleY;
 			
 			var container_h:int = this.field_container.height;
-			this.field_container.verticalScrollPosition = (h > container_h) ? (h - container_h + 10) : 0;
+			
+			if(h > container_h) {
+				// need to adjust scroll position
+				var delta:int = container_h / 2;
+				var under_scroll_h:int = field_area.height - h;
+				if(under_scroll_h <= delta) {
+					delta = under_scroll_h;
+					
+					delta = (delta > 10) ? (delta - 10) : (delta / 2);
+				}
+				this.field_container.verticalScrollPosition = h - container_h + delta;
+			}
+			else {
+				this.field_container.verticalScrollPosition = 0;
+			}
         }
     }
 }
