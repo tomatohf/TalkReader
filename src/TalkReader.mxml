@@ -15,11 +15,16 @@
 	
 	<mx:Style>
 		.windowStyles {
-			font-size: 13px;
+			fontSize: 13px;
 		}
 		
 		TitleWindow {
-			font-size:13px;
+			fontSize: 13px;
+		}
+		
+		ToolTip {
+			fontSize: 13px;
+			cornerRadius: 5;
 		}
 	</mx:Style>
 	
@@ -51,6 +56,7 @@
 	<mx:ApplicationControlBar width="100%" id="app_bar">
 		<mx:Image source="@Embed(source='resources/logo.png')"
 			id="logo_img"
+			toolTip="乔布堂 周三访谈录"
 			click="logo_img_click()"
 			useHandCursor="true"
 			buttonMode="true"

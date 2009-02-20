@@ -9,6 +9,7 @@ import flash.net.navigateToURL;
 import flash.text.StyleSheet;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
+import flash.ui.Keyboard;
 import flash.utils.setTimeout;
 
 import mx.containers.TitleWindow;
@@ -155,11 +156,11 @@ private function init_help_window():void {
 	help_window.addChild(fullscreen_key_label);
 	
 	var scrolldown_key_label:Label = new Label();
-	scrolldown_key_label.text = "J        向下滚动";
+	scrolldown_key_label.text = "J,下      向下滚动";
 	help_window.addChild(scrolldown_key_label);
 	
 	var scrollup_key_label:Label = new Label();
-	scrollup_key_label.text = "K        向上滚动";
+	scrollup_key_label.text = "K,上      向上滚动";
 	help_window.addChild(scrollup_key_label);
 	
 	var scrolltop_key_label:Label = new Label();
@@ -361,6 +362,14 @@ private function observe_event():void {
 				break;
 			// K
 			case 75:
+				scroll_content(-100);
+				break;
+			// Down Arrow
+			case Keyboard.DOWN:
+				scroll_content(100);
+				break;
+			// Up Arrow
+			case Keyboard.UP:
 				scroll_content(-100);
 				break;
 			// T
