@@ -491,6 +491,20 @@ private function layout_content(talk_content:Object):void {
 				"  " + 
 				answer.answer
 			);
+			
+			var answer_summary:String = StringUtil.trim(answer.summary);
+			if(answer_summary && answer_summary != "") {
+				// add answer summary
+				content.htmlText += textformat_content(
+					paragraph_text(
+						image_content("http://www.qiaobutang.com/images/left_quote.gif") + 
+						font_text(answer_summary, 12, "#999999") +
+						""
+						//image_content("http://www.qiaobutang.com/images/right_quote.gif") 
+					),
+					15
+				);
+			}
 		}
 		
 		//content.htmlText += "<br />";
@@ -498,7 +512,7 @@ private function layout_content(talk_content:Object):void {
 	
 	
 	// add end icon
-	content.htmlText += image_content("http://localhost:3002/images/index/talk_icon.png");
+	content.htmlText += image_content("http://www.qiaobutang.com/images/index/talk_icon.png");
 	
 	
 	// add publish time
@@ -604,6 +618,14 @@ private function image_content(src:String, align:String = null, id:String = null
 			" />";
 }
 
+private function textformat_content(text:String, leading:int = 0):String {
+	return "<textformat" +
+			((leading == 0) ? "" : " leading='" + leading + "'") + 
+			">" +
+				text +  
+			"</textformat>";
+}
+
 private function show_loading_window():void {
 	if(loading_window == null) {
 		loading_window = TitleWindow(PopUpManager.createPopUp(this, TitleWindow, true));
@@ -668,7 +690,7 @@ private function toggle_fullscreen_btn(is_full:Boolean):void {
 	normal_btn.visible = is_full;
 	normal_btn.includeInLayout = is_full;
 	
-	toolbar_gap = is_full ? 20 : 2;
+	//toolbar_gap = is_full ? 20 : 2;
 	search_box.width = is_full ? 300 : 75;
 	
 	content.width = (Application.application.stage.stageWidth - content_container.verticalScrollBar.width) / 1.1;
