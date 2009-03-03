@@ -324,7 +324,7 @@ private function observe_event():void {
 	);
 	
 	var double_handler:Function = function():void {
-		toggle_fullscreen();
+		safely_toggle_fullscreen(null);
 	}
 	content_container.addEventListener(
 		MouseEvent.DOUBLE_CLICK,
@@ -354,7 +354,7 @@ private function observe_event():void {
 		switch(event.keyCode) {
 			// F
 			case 70:
-				toggle_fullscreen();
+				safely_toggle_fullscreen(null);
 				break;
 			// J
 			case 74:
@@ -426,11 +426,16 @@ private function on_got_content(event:ResultEvent):void {
 		return on_fault(null);
 	}
 	
-	layout_content(event.result);
+	
+	var talk_content:Object = event.result;
+	
+	view_count_label.text = "查看: " + talk_content.view_count;
+	
+	layout_content(talk_content);
 	
 	update_content_height();
 	
-	setTimeout(scroll_to, 500, 0);
+	setTimeout(set_scroll_position, 500, 0);
 }
 
 private function layout_content(talk_content:Object):void {
@@ -684,6 +689,22 @@ private function toggle_fullscreen():void {
 	}
 }
 
+private function safely_toggle_fullscreen(func:Function):void {
+	try {
+		toggle_fullscreen();
+	}
+	catch(e:Error) {
+		if(func != null) {
+			func.call();
+		}
+	}
+}
+
+private function go_back_home():void {
+	var url:URLRequest = new URLRequest("http://www.qiaobutang.com/talks/" + talk_id);
+	navigateToURL(url, "_blank");
+}
+
 private function toggle_fullscreen_btn(is_full:Boolean):void {
 	fullscreen_btn.visible = !is_full;
 	fullscreen_btn.includeInLayout = !is_full;
@@ -753,12 +774,18 @@ private function toggle_search_panel():void {
 		search_panel.visible = false;
 		search_panel.includeInLayout = false;
 		
+		info_panel.visible = true;
+		info_panel.includeInLayout = true;
+		
 		highlighter.reset();
 		all_highlighter.reset();
 	}
 	else {
 		search_panel.visible = true;
 		search_panel.includeInLayout = true;
+		
+		info_panel.visible = false;
+		info_panel.includeInLayout = false;
 		
 		search_box.setFocus();
 	}

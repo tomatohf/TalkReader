@@ -132,6 +132,13 @@
 			
 			
 			<mx:HBox id="toolbar_2" horizontalGap="{toolbar_gap}">
+				<mx:Label
+					id="view_count_label"
+					fontSize="12"
+					paddingTop="5"
+					paddingBottom="0"
+					/>
+				
 				<mx:Button
 					id="big_btn"
 					label=""
@@ -179,7 +186,7 @@
 					toolTip="全屏阅读"
 					width="24"
 					height="24"
-					click="toggle_fullscreen()"
+					click="safely_toggle_fullscreen(go_back_home)"
 					buttonMode="true"
 					/>
 				<mx:Button
@@ -191,7 +198,7 @@
 					toolTip="退出全屏"
 					width="24"
 					height="24"
-					click="toggle_fullscreen()"
+					click="safely_toggle_fullscreen(go_back_home)"
 					buttonMode="true"
 					/>
 			</mx:HBox>
@@ -300,6 +307,35 @@
 			paddingLeft="5"
 			paddingRight="5"
 			buttonMode="true"
+			/>
+		
+	</mx:ControlBar>
+	
+	
+	<mx:ControlBar
+		id="info_panel"
+		includeInLayout="true"
+		visible="true"
+		width="100%"
+		horizontalGap="1"
+		paddingTop="0"
+		paddingBottom="0"
+		horizontalAlign="right"
+		>
+		
+		<mx:Image
+			source="http://qiaobutang.com/images/index/vote_icon.png"
+			/>
+		
+		<reader_control:Link
+			id="vote_link_btn"
+			label="快消? 金融? IT? 还是咨询? 马上投票, 你来决定访谈谁 !"
+			click="navigateToURL(new URLRequest('http://www.qiaobutang.com/votes/1016'), '_blank')"
+			fontSize="12"
+			fontWeight="normal"
+			paddingTop="0"
+			paddingBottom="0"
+			paddingLeft="2"
 			/>
 		
 	</mx:ControlBar>
