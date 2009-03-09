@@ -22,9 +22,18 @@
 			fontSize: 13px;
 		}
 		
-		ToolTip {
+		ToolTip, .errorTip {
 			fontSize: 13px;
 			cornerRadius: 5;
+		}
+		
+		.errorTip {
+			borderColor: #FFFDC0;
+			color: #333333;
+			fontWeight: normal;
+			paddingTop: 0px;
+			paddingBottom: 0px;
+			
 		}
 	</mx:Style>
 	

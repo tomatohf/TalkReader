@@ -17,17 +17,21 @@ import mx.controls.Image;
 import mx.controls.Label;
 import mx.controls.LinkButton;
 import mx.controls.Spacer;
+import mx.controls.ToolTip;
 import mx.core.Application;
+import mx.core.IToolTip;
 import mx.effects.AnimateProperty;
 import mx.events.CloseEvent;
 import mx.managers.CursorManager;
 import mx.managers.PopUpManager;
+import mx.managers.ToolTipManager;
 import mx.rpc.events.FaultEvent;
 import mx.rpc.events.ResultEvent;
 import mx.utils.StringUtil;
 
 // configuratioin values
 [Bindable]private var toolbar_gap:int = 2;
+private var page_preserve_height:int = 30;
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
@@ -53,6 +57,8 @@ private var help_window:TitleWindow = null;
 private var about_window:TitleWindow = null;
 
 private var loading_window:TitleWindow = null;
+
+private var control_tips:IToolTip = null;
 
 
 private function init_app():void {
@@ -138,7 +144,9 @@ private function init_help_window():void {
 	);
 	
 	help_window.width = 200;
-	help_window.height = 300;
+	help_window.height = 360;
+	
+	help_window.setStyle("borderAlpha", "0.8");
 	
 	help_window.visible = false;
 	help_window.includeInLayout = false;
@@ -152,35 +160,43 @@ private function init_help_window():void {
 	help_window.addChild(keys_label);
 	
 	var fullscreen_key_label:Label = new Label();
-	fullscreen_key_label.text = "F        设置/取消全屏";
+	fullscreen_key_label.text = "F     设置/取消全屏";
 	help_window.addChild(fullscreen_key_label);
 	
 	var scrolldown_key_label:Label = new Label();
-	scrolldown_key_label.text = "J,下      向下滚动";
+	scrolldown_key_label.text = "J,下   向下滚动";
 	help_window.addChild(scrolldown_key_label);
 	
 	var scrollup_key_label:Label = new Label();
-	scrollup_key_label.text = "K,上      向上滚动";
+	scrollup_key_label.text = "K,上   向上滚动";
 	help_window.addChild(scrollup_key_label);
 	
+	var scroll_pagedown_key_label:Label = new Label();
+	scroll_pagedown_key_label.text = "PageDown  向下滚动一屏";
+	help_window.addChild(scroll_pagedown_key_label);
+	
+	var scroll_pageup_key_label:Label = new Label();
+	scroll_pageup_key_label.text = "PageUp   向上滚动一屏";
+	help_window.addChild(scroll_pageup_key_label);
+	
 	var scrolltop_key_label:Label = new Label();
-	scrolltop_key_label.text = "T        滚动到顶";
+	scrolltop_key_label.text = "T     滚动到顶";
 	help_window.addChild(scrolltop_key_label);
 	
 	var scrollbottom_key_label:Label = new Label();
-	scrollbottom_key_label.text = "B        滚动到底";
+	scrollbottom_key_label.text = "B     滚动到底";
 	help_window.addChild(scrollbottom_key_label);
 	
 	var zoomin_key_label:Label = new Label();
-	zoomin_key_label.text = "]        放大";
+	zoomin_key_label.text = "]     放大";
 	help_window.addChild(zoomin_key_label);
 	
 	var zoomout_key_label:Label = new Label();
-	zoomout_key_label.text = "[        缩小";
+	zoomout_key_label.text = "[     缩小";
 	help_window.addChild(zoomout_key_label);
 	
 	var help_key_label:Label = new Label();
-	help_key_label.text = "H        打开/关闭帮助";
+	help_key_label.text = "H     打开/关闭帮助";
 	help_window.addChild(help_key_label);
 }
 
@@ -372,6 +388,14 @@ private function observe_event():void {
 			case Keyboard.UP:
 				scroll_content(-100);
 				break;
+			// PageDown Arrow
+			case Keyboard.PAGE_DOWN:
+				scroll_content(content_container.height - page_preserve_height);
+				break;
+			// PageUp Arrow
+			case Keyboard.PAGE_UP:
+				scroll_content(0 - (content_container.height - page_preserve_height));
+				break;
 			// T
 			case 84:
 				set_scroll_position(0);
@@ -427,6 +451,8 @@ private function on_got_content(event:ResultEvent):void {
 	}
 	
 	
+	show_control_tips();
+	
 	var talk_content:Object = event.result;
 	
 	view_count_label.text = "查看: " + talk_content.view_count;
@@ -435,7 +461,7 @@ private function on_got_content(event:ResultEvent):void {
 	
 	update_content_height();
 	
-	setTimeout(set_scroll_position, 500, 0);
+	setTimeout(set_scroll_position, 100, 0);
 }
 
 private function layout_content(talk_content:Object):void {
@@ -655,6 +681,37 @@ private function hide_loading_window():void {
 	loading_window.includeInLayout = false;
 }
 
+private function show_control_tips():void {
+	if(control_tips == null) {
+		var tip_text:String = "使用 J键 和 K键 可滚动内容; 双击内容可全屏阅读";
+		control_tips = ToolTip(
+			ToolTipManager.createToolTip(
+				tip_text,
+				0,
+				app_bar.height - 5,
+				"errorTipAbove"
+			)
+		);
+		control_tips.width = app_bar.width;
+		control_tips.height = control_tips.height * 2 / 3;
+	}
+	
+	var disappear:AnimateProperty = new AnimateProperty(control_tips);
+	disappear.property = "alpha";
+	disappear.duration = 16000;
+	disappear.fromValue = 1;
+	disappear.toValue = 0;
+	disappear.play();
+	
+	setTimeout(hide_control_tips, 10000);
+}
+
+private function hide_control_tips():void {
+	if(control_tips != null) {
+		ToolTipManager.destroyToolTip(control_tips);
+	}
+}
+
 private function on_fault(event:FaultEvent):void {
 	hide_loading_window();
 	
@@ -759,6 +816,8 @@ private function set_scroll_position(position:int):void {
 private function scale_content(step:int):void {
 	content.scaleX += step / 100;
 	content.scaleY = content.scaleX;
+	
+	page_preserve_height = page_preserve_height * content.scaleX;
 	
 	big_btn.enabled = content.scaleX < 5;
 	small_btn.enabled = content.scaleX > 0.2;
