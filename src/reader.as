@@ -544,10 +544,17 @@ private function layout_content(talk_content:Object):void {
 	
 	// add end icon
 	content.htmlText += image_content("http://www.qiaobutang.com/images/index/talk_icon.png");
+	content.htmlText += "<br />";
+	
+	
+	// add reporters
+	content.htmlText += paragraph_text(
+		font_text("文: " + talk_content.reporters.join(" , "), 12),
+		"right"
+	);
 	
 	
 	// add publish time
-	content.htmlText += "<br />";
 	content.htmlText += paragraph_text(
 		italic_text(
 			font_text(talk_content.publish_time + " 发布", 10)
