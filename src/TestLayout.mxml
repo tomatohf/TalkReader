@@ -108,7 +108,7 @@
 	</mx:Script>
 	
 	<mx:ApplicationControlBar width="100%" id="top_bar" dock="false">
-		<mx:Image source="@Embed(source='resources/logo.png')"/>
+		<!--<mx:Image  source="{image_base_url + 'reader_logo.png'}" />-->
 		<mx:Button id="full_screen_btn" label="全屏" click="full_screen();"/>
 		<mx:Button label="字体+" click="increase_font_size();"/>
 		<mx:Button label="字体-" click="decrease_font_size();"/>

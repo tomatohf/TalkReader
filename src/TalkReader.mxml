@@ -63,7 +63,7 @@
 	
 	
 	<mx:ApplicationControlBar width="100%" id="app_bar">
-		<mx:Image source="@Embed(source='resources/logo.png')"
+		<mx:Image source="{image_base_url + 'reader_logo.png'}"
 			id="logo_img"
 			toolTip="乔布堂 周三访谈录"
 			click="logo_img_click()"
@@ -261,7 +261,7 @@
 		paddingBottom="4"
 		>
 		
-		<mx:Image source="@Embed(source='resources/close_icon.gif')"
+		<mx:Image source="{image_base_url + 'close_icon.gif'}"
 			click="toggle_search_panel()"
 			toolTip="关闭"
 			useHandCursor="true"

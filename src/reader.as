@@ -2,6 +2,7 @@ import com.qiaobutang.talk.reader.text.Highlighter;
 
 import flash.display.StageScaleMode;
 import flash.events.ContextMenuEvent;
+import flash.events.Event;
 import flash.events.FullScreenEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
@@ -32,6 +33,7 @@ import mx.utils.StringUtil;
 // configuratioin values
 [Bindable]private var toolbar_gap:int = 2;
 private var page_preserve_height:int = 30;
+[Bindable]private var image_base_url:String = "http://www.qiaobutang.com/images/talks/reader/";
 
 [Embed(source="resources/moving_hand_cursor.png")]private var moving_hand_cursor:Class;
 
@@ -60,19 +62,23 @@ private var loading_window:TitleWindow = null;
 
 private var control_tips:IToolTip = null;
 
+private var play_img:Image = null;
+
 
 private function init_app():void {
-	show_loading_window();
-	
-	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
-	
-	update_content_height(1000);
-	
 	if(Application.application.loaderInfo.loaderURL.indexOf("file") == 0) {
 		// local ...
 		talk_show_service.endpoint = "http://localhost:3002/weborb";
 		talk_id = 1001;
+		image_base_url = "http://localhost:3002/images/talks/reader/";
 	}
+	
+	
+	show_play_img();
+	
+	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
+	
+	update_content_height(1000);
 	
 	// handle_parameters
 	if(application.parameters.talk != null){
@@ -92,8 +98,6 @@ private function init_app():void {
 	toggle_fullscreen_btn(false);
 	
 	init_content_styles();
-	
-	load_content();
 }
 
 private function init_content_styles():void {
@@ -471,14 +475,28 @@ private function layout_content(talk_content:Object):void {
 	content.htmlText += paragraph_text(bold_text(font_text(talk_content.title, 20)), "center");
 	content.htmlText += "<br />";
 	
-	// add desc
-	content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
-	content.htmlText += "<br />";
-	var descs:Array = multiple_lines(talk_content.desc);
-	for(var desc_i:int = 0; desc_i < descs.length; desc_i++) {
-		content.htmlText += paragraph_text("    " + font_text(descs[desc_i], 12, "#555555", "黑体"));
+	var talk_desc:String = talk_content.desc;
+	if(talk_desc != null && talk_desc != "") {
+		// add desc
+		content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
+		content.htmlText += "<br />";
+		var descs:Array = multiple_lines(talk_desc);
+		for(var desc_i:int = 0; desc_i < descs.length; desc_i++) {
+			content.htmlText += paragraph_text("    " + font_text(descs[desc_i], 12, "#555555", "黑体"));
+		}
 	}
 	
+	
+	var question_prefix:String = talk_content.question_prefix;
+	var sep:String = talk_content.sep;
+	if((question_prefix != null) && (question_prefix != "")) {
+		question_prefix = question_prefix + sep;
+	}
+	else {
+		question_prefix = "";
+	}
+	var answer_prefix:String = talk_content.answer_prefix;
+	var has_answer_prefix:Boolean = (answer_prefix != null) && (answer_prefix != "")
 	
 	var talkers:Object = talk_content.talkers;
 	var categories:Object = talk_content.categories;
@@ -508,20 +526,47 @@ private function layout_content(talk_content:Object):void {
 			current_category = category;
 		}
 		
-		// add question
-		content.htmlText += paragraph_text(font_text(bold_text("乔布堂:" + "  " + question.question), 0, "#FF6600"));
+		var question_question:String = question.question;
+		if(question_question != null && question_question != "") {
+			// add question
+			content.htmlText += paragraph_text(
+				font_text(
+					bold_text(question_prefix + question_question),
+					0,
+					"#FF6600"
+				)
+			);
+		}
 		
 		// add answers
 		var answers:Array = question.answers;
 		for(var j:int = 0; j < answers.length; j++) {
 			var answer:Object = answers[j];
 			
+			var talker_name:String = talkers["talker_" + answer.talker_id].name;
 			// add answer
+			/*
 			content.htmlText += paragraph_text(
-				bold_text(talkers["talker_" + answer.talker_id].name + ":") + 
-				"  " + 
+				(has_answer_prefix ? bold_text(talker_name + sep) : "") + 
 				answer.answer
 			);
+			*/
+			var answer_lines:Array = multiple_lines(answer.answer);
+			for(var answer_line_i:int = 0; answer_line_i < answer_lines.length; answer_line_i++) {
+				var answer_line_prefix:String = "";
+				var answer_line_indent:String = "    ";
+				if(answer_line_i == 0) {
+					if(has_answer_prefix) {
+						answer_line_prefix = bold_text(talker_name + sep);
+						answer_line_indent = "";
+					}
+				}
+				content.htmlText += paragraph_text(
+					answer_line_prefix + 
+					answer_line_indent +
+					answer_lines[answer_line_i]
+				);
+			}
 			
 			var answer_summary:String = StringUtil.trim(answer.summary);
 			if(answer_summary && answer_summary != "") {
@@ -547,11 +592,14 @@ private function layout_content(talk_content:Object):void {
 	content.htmlText += "<br />";
 	
 	
-	// add reporters
-	content.htmlText += paragraph_text(
-		font_text("文: " + talk_content.reporters.join(" , "), 12),
-		"right"
-	);
+	var reporters:Array = talk_content.reporters;
+	if(reporters.length > 0) {
+		// add reporters
+		content.htmlText += paragraph_text(
+			font_text("文: " + reporters.join(" , "), 12),
+			"right"
+		);
+	}
 	
 	
 	// add publish time
@@ -662,6 +710,43 @@ private function textformat_content(text:String, leading:int = 0):String {
 			">" +
 				text +  
 			"</textformat>";
+}
+
+private function show_play_img():void {
+	if(play_img == null) {
+		play_img = new Image();
+		
+		play_img.addEventListener(
+			MouseEvent.CLICK,
+			function():void {
+				hide_play_img();
+				
+				show_loading_window();
+				
+				load_content();
+			}
+		);
+		
+		play_img.addEventListener(
+			Event.COMPLETE,
+			function(evt:Event):void {
+				play_img.width = play_img.contentWidth;
+				play_img.height = play_img.contentHeight;
+				PopUpManager.centerPopUp(play_img);
+			}
+		);
+		
+		play_img.toolTip = "点击 开始读取访谈录";
+		play_img.buttonMode = true;
+		
+		PopUpManager.addPopUp(play_img, this, true);
+		
+		play_img.load(image_base_url + "play.png");
+	}
+}
+
+private function hide_play_img():void {
+	PopUpManager.removePopUp(play_img);
 }
 
 private function show_loading_window():void {
