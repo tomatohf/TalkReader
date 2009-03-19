@@ -7,6 +7,7 @@ import flash.events.FullScreenEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.net.navigateToURL;
+import flash.system.LoaderContext;
 import flash.text.StyleSheet;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
@@ -67,6 +68,7 @@ private var control_tips:IToolTip = null;
 
 private var play_img:Image = null;
 
+private var bottom_ads_url:String = "/swf/talk_reader_bottom_ads.xml";
 private var bottom_ads:Array = [];
 private var current_bottom_ad_index:int = -1;
 private var bottom_ad_display_time:int = 5000;
@@ -81,6 +83,7 @@ private function init_app():void {
 		talk_show_service.endpoint = "http://localhost:3002/weborb";
 		talk_id = 1001;
 		image_base_url = "http://localhost:3002/images/talks/reader/";
+		bottom_ads_url = "http://localhost:3002/swf/talk_reader_bottom_ads.xml";
 	}
 	
 	
@@ -1121,8 +1124,13 @@ private function position_window(window:TitleWindow):void {
 }
 
 private function load_ads():void {
+	var loader_context:LoaderContext = new LoaderContext();
+	loader_context.checkPolicyFile = true;
+	bottom_ad_icon.loaderContext = loader_context;
+	
+	
 	var bottom_ads_req:HTTPService = new HTTPService();
-	bottom_ads_req.url = "http://www.qiaobutang.com/swf/talk_reader_bottom_ads.xml";
+	bottom_ads_req.url = bottom_ads_url;
 	bottom_ads_req.resultFormat = "object";
 	bottom_ads_req.addEventListener(ResultEvent.RESULT, on_bottom_ads_load);
 	
