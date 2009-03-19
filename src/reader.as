@@ -11,6 +11,7 @@ import flash.text.StyleSheet;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
 import flash.ui.Keyboard;
+import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
 
 import mx.containers.TitleWindow;
@@ -64,6 +65,13 @@ private var control_tips:IToolTip = null;
 
 private var play_img:Image = null;
 
+private var bottom_ads:Array = [];
+private var current_bottom_ad_index:int = -1;
+private var bottom_ad_display_time:int = 5000;
+private var bottom_ads_interval:uint = 0;
+private var bottom_ad_visible:Boolean = false;
+private var bottom_ad_scrolling:Boolean = false;
+
 
 private function init_app():void {
 	if(Application.application.loaderInfo.loaderURL.indexOf("file") == 0) {
@@ -79,6 +87,8 @@ private function init_app():void {
 	Application.application.stage.scaleMode = StageScaleMode.NO_SCALE;
 	
 	update_content_height(1000);
+	
+	load_ads();
 	
 	// handle_parameters
 	if(application.parameters.talk != null){
@@ -1106,4 +1116,72 @@ private function handle_about():void {
 private function position_window(window:TitleWindow):void {
 	window.x = (Application.application.stage.stageWidth - window.width) / 2;
 	window.y = (Application.application.stage.stageHeight - window.height) / 2;
+}
+
+private function load_ads():void {
+	bottom_ads = [
+		[
+			"快消? 金融? IT? 还是咨询? 马上投票, 你来决定访谈谁 !",
+			"http://www.qiaobutang.com/votes/1016",
+			"http://www.qiaobutang.com/images/index/vote_icon.png"
+		],
+		[
+			"评周三访谈录, 获免费求职培训",
+			"http://www.qiaobutang.com/group/posts/259",
+			"http://www.qiaobutang.com/images/index/talk_icon.png"
+		]
+	];
+	
+	start_bottom_ads_interval();
+}
+
+private function scroll_bottom_ad():void {
+	if(bottom_ads.length <= 0) return;
+	
+	if(!bottom_ad_scrolling) return;
+	
+	if(bottom_ad.visible) {
+		bottom_ad.visible = false;
+		bottom_ad_visible = false;
+		
+		if(current_bottom_ad_index < (bottom_ads.length - 1)) {
+			current_bottom_ad_index = current_bottom_ad_index + 1;
+		}
+		else {
+			current_bottom_ad_index = 0;
+		}
+	}
+	else {
+		if(current_bottom_ad_index == -1) {
+			current_bottom_ad_index = 0;
+		}
+		
+		var current_ad:Array = bottom_ads[current_bottom_ad_index];
+		bottom_ad_icon.source = current_ad[2];
+		bottom_ad_link.label = current_ad[0];
+	
+		bottom_ad.visible = true;
+		bottom_ad_visible = true;
+	}
+	
+	start_bottom_ads_interval();
+}
+
+private function start_bottom_ads_interval():void {
+	bottom_ad_scrolling = true;
+	bottom_ads_interval = setTimeout(scroll_bottom_ad, (bottom_ad_visible ? bottom_ad_display_time : 500));
+}
+
+private function stop_bottom_ads_interval():void {
+	bottom_ad_scrolling = false;
+	clearTimeout(bottom_ads_interval);
+}
+
+private function on_bottom_ad_click():void {
+	if(current_bottom_ad_index == -1) return;
+	
+	var current_ad:Array = bottom_ads[current_bottom_ad_index];
+	if(current_ad != null && current_ad.length > 1) {
+		navigateToURL(new URLRequest(current_ad[1]), "_blank")
+	}
 }
