@@ -14,6 +14,7 @@ import flash.ui.Keyboard;
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
 
+import mx.collections.ArrayCollection;
 import mx.containers.TitleWindow;
 import mx.controls.Image;
 import mx.controls.Label;
@@ -29,6 +30,7 @@ import mx.managers.PopUpManager;
 import mx.managers.ToolTipManager;
 import mx.rpc.events.FaultEvent;
 import mx.rpc.events.ResultEvent;
+import mx.rpc.http.HTTPService;
 import mx.utils.StringUtil;
 
 // configuratioin values
@@ -1119,18 +1121,16 @@ private function position_window(window:TitleWindow):void {
 }
 
 private function load_ads():void {
-	bottom_ads = [
-		[
-			"快消? 金融? IT? 还是咨询? 马上投票, 你来决定访谈谁 !",
-			"http://www.qiaobutang.com/votes/1016",
-			"http://www.qiaobutang.com/images/index/vote_icon.png"
-		],
-		[
-			"评周三访谈录, 获免费求职培训",
-			"http://www.qiaobutang.com/group/posts/259",
-			"http://www.qiaobutang.com/images/index/talk_icon.png"
-		]
-	];
+	var bottom_ads_req:HTTPService = new HTTPService();
+	bottom_ads_req.url = "http://www.qiaobutang.com/swf/talk_reader_bottom_ads.xml";
+	bottom_ads_req.resultFormat = "object";
+	bottom_ads_req.addEventListener(ResultEvent.RESULT, on_bottom_ads_load);
+	
+	bottom_ads_req.send();
+}
+
+private function on_bottom_ads_load(event:ResultEvent):void {
+	bottom_ads = (event.result.ads.ad as ArrayCollection).toArray();
 	
 	start_bottom_ads_interval();
 }
@@ -1156,9 +1156,9 @@ private function scroll_bottom_ad():void {
 			current_bottom_ad_index = 0;
 		}
 		
-		var current_ad:Array = bottom_ads[current_bottom_ad_index];
-		bottom_ad_icon.source = current_ad[2];
-		bottom_ad_link.label = current_ad[0];
+		var current_ad:Object = bottom_ads[current_bottom_ad_index];
+		bottom_ad_icon.source = current_ad.icon;
+		bottom_ad_link.label = current_ad.label;
 	
 		bottom_ad.visible = true;
 		bottom_ad_visible = true;
@@ -1180,8 +1180,8 @@ private function stop_bottom_ads_interval():void {
 private function on_bottom_ad_click():void {
 	if(current_bottom_ad_index == -1) return;
 	
-	var current_ad:Array = bottom_ads[current_bottom_ad_index];
-	if(current_ad != null && current_ad.length > 1) {
-		navigateToURL(new URLRequest(current_ad[1]), "_blank")
+	var current_ad:Object = bottom_ads[current_bottom_ad_index];
+	if(current_ad != null) {
+		navigateToURL(new URLRequest(current_ad.link), "_blank")
 	}
 }
