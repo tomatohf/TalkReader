@@ -584,8 +584,9 @@ private function layout_content(talk_content:Object):void {
 				if(answer_line_i == 0) {
 					if(has_answer_prefix) {
 						answer_line_prefix = bold_text(talker_name + sep);
-						answer_line_indent = "";
 					}
+					
+					answer_line_indent = "";
 				}
 				content.htmlText += paragraph_text(
 					answer_line_prefix + 
