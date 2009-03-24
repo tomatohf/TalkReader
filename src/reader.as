@@ -6,6 +6,7 @@ import flash.events.Event;
 import flash.events.FullScreenEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
+import flash.events.TextEvent;
 import flash.net.navigateToURL;
 import flash.system.LoaderContext;
 import flash.text.StyleSheet;
@@ -52,6 +53,7 @@ private var talk_id:uint = 0;
 
 private var all_highlighter:Highlighter;
 private var highlighter:Highlighter;
+private var position_highlighter:Highlighter;
 
 private var zoom_in_item:ContextMenuItem;
 private var zoom_out_item:ContextMenuItem;
@@ -146,6 +148,7 @@ private function init_content_styles():void {
 private function init_highlighter():void {
 	all_highlighter = new Highlighter(content_container, content, 0xFFFFFF00, 30, 10);
 	highlighter = new Highlighter(content_container, content, 0xFF00FF00, 30, 10);
+	position_highlighter = new Highlighter(content_container, content, 0xFF00FF00, 30, 10);
 }
 
 private function init_help_window():void {
@@ -358,7 +361,7 @@ private function observe_event():void {
 		mouse_wheel_handler
 	);
 	
-	var double_handler:Function = function():void {
+	var double_handler:Function = function(event:MouseEvent):void {
 		safely_toggle_fullscreen(null);
 	}
 	content_container.addEventListener(
@@ -527,7 +530,15 @@ private function layout_content(talk_content:Object):void {
 			if(category != null) {
 				// should display category info
 				content.htmlText += "<br /><br />";
-
+				
+				content.htmlText += paragraph_text(
+					link_text(
+						font_text("回页首", 11, "#888888"),
+						"event:{top}"
+					),
+					"right"
+				);
+				
 				content.htmlText += paragraph_text(bold_text(font_text(category.name, 18)));
 				
 				var category_descs:Array = multiple_lines(category.desc);
@@ -1191,5 +1202,22 @@ private function on_bottom_ad_click():void {
 	var current_ad:Object = bottom_ads[current_bottom_ad_index];
 	if(current_ad != null) {
 		navigateToURL(new URLRequest(current_ad.link), "_blank")
+	}
+}
+
+private function handle_content_link(event:TextEvent):void {
+	var text:String = event.text;
+	text = StringUtil.trim(text);
+	
+	if(text != null && text != "") {
+		if(text == "{top}") {
+			// back to top
+			set_scroll_position(0);
+		}
+		else {
+			position_highlighter.highlightNext(text, false);
+		
+			setTimeout(function():void{ position_highlighter.reset(); }, 1000);
+		}
 	}
 }

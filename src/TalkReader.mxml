@@ -244,6 +244,9 @@
 			wordWrap="true"
 			displayAsPassword="false"
 			borderThickness="0"
+			link="handle_content_link(event)"
+			rollOver="focusManager.deactivate()"
+			rollOut="focusManager.activate()"
 			>
 		
 		</mx:TextArea>
