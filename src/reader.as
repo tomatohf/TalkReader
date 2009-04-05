@@ -70,7 +70,7 @@ private var control_tips:IToolTip = null;
 
 private var play_img:Image = null;
 
-private var bottom_ads_url:String = "/swf/talk_reader_bottom_ads.xml";
+private var bottom_ads_url:String = "http://www.qiaobutang.com/swf/talk_reader_bottom_ads.xml";
 private var bottom_ads:Array = [];
 private var current_bottom_ad_index:int = -1;
 private var bottom_ad_display_time:int = 5000;
