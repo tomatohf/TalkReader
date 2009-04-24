@@ -496,8 +496,8 @@ private function layout_content(talk_content:Object):void {
 	var talk_desc:String = talk_content.desc;
 	if(talk_desc != null && talk_desc != "") {
 		// add desc
-		content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
-		content.htmlText += "<br />";
+		// content.htmlText += paragraph_text(italic_text(font_text("写在前面:", 12, "#555555")));
+		// content.htmlText += "<br />";
 		var descs:Array = multiple_lines(talk_desc);
 		for(var desc_i:int = 0; desc_i < descs.length; desc_i++) {
 			content.htmlText += paragraph_text("    " + font_text(descs[desc_i], 12, "#555555", "黑体"));
@@ -614,6 +614,21 @@ private function layout_content(talk_content:Object):void {
 	}
 	
 	
+	// add summary
+	var talk_summary:String = talk_content.summary;
+	if(talk_summary != null && talk_summary != "") {
+		content.htmlText += "<br /><br />";
+		
+		var summaries:Array = multiple_lines(talk_summary);
+		for(var summary_i:int = 0; summary_i < summaries.length; summary_i++) {
+			content.htmlText += paragraph_text(
+				"    " + 
+				font_text(summaries[summary_i], 0, "#555555")
+			);
+		}
+	}
+	
+	
 	// add end icon
 	content.htmlText += image_content("http://www.qiaobutang.com/images/index/talk_icon.png");
 	content.htmlText += "<br />";
@@ -636,6 +651,42 @@ private function layout_content(talk_content:Object):void {
 		),
 		"right"
 	);
+	
+	
+	// add forecast
+	var forecast:Object = talk_content.forecast;
+	if(forecast.title != "no") {
+		content.htmlText += "<br /><br /><br />";
+		
+		if(forecast.image != null && forecast.image != "") {
+			content.htmlText += image_content(forecast.image);
+			content.htmlText += "<br />";
+			content.htmlText += "<br />";
+			content.htmlText += "<br />";
+			content.htmlText += "<br />";
+			content.htmlText += "<br />";
+		}
+		
+		content.htmlText += paragraph_text(
+			bold_text(
+				font_text(forecast.title, 16, "#CD0104")
+			)
+		);
+		
+		var forecast_desc:String = forecast.desc;
+		if(forecast_desc != null && forecast_desc != "") {
+			// add forecast desc
+			content.htmlText += "<br />";
+			
+			var forecast_desc_lines:Array = multiple_lines(forecast_desc);
+			for(var forecast_desc_i:int = 0; forecast_desc_i < forecast_desc_lines.length; forecast_desc_i++) {
+				content.htmlText += paragraph_text(
+					"    " + 
+					font_text(forecast_desc_lines[forecast_desc_i], 12, "#555555")
+				);
+			}
+		}
+	}
 	
 	
 	// add copyright
