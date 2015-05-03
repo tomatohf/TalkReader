@@ -1,0 +1,5 @@
+.DS_Store
+
+# exclude bin files
+/bin-debug/*
+/bin-release/*
